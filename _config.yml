@@ -11,7 +11,7 @@ kramdown:
   auto_ids: true
 highlighter: rouge
 permalink: /:categories/:title/
-baseurl: ""
+baseurl: "/noflo.github.io"
 repository:
   web: "https://github.com/noflo/noflo"
   git: "git://github.com/noflo/noflo.git"
