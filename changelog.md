@@ -176,3 +176,7 @@ change `components` link from https://www.npmjs.com/browse/keyword/noflo to http
 
 ## legacy
 - formatting
+
+## url
+- changing baseurl for github pages
+- change projects link to relative
