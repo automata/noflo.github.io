@@ -26,6 +26,7 @@ component.process returns instance of component
   - [Full Stream](#full-stream)
   - [Per Packet](#per-packet)
 - [Scope](#scope)
+- [Auto Ordering](#auto-ordering)
 - [Buffer](#buffer)
 - [Brackets](#brackets)
 - [BracketForwarding](#bracket-forwarding)
@@ -182,6 +183,8 @@ Bracket forwarding is a way to pass on brackets so that you don't have to deal w
 
 If an inport receives an `openBracket`, `data`, and `closeBracket` and you are using `bracketForwarding`, you can get the `data`, process it and send stuff out, and what you send out will be wrapped in the `openBracket` and `closeBracket`.
 
+When sending brackets as a group, the `openBracket` and `closeBracket` should contain the same data.
+
 <div class="note">
 Control ports are not wrapped with brackets, they only deal with data.
 </div>
@@ -313,12 +316,13 @@ c.process (input, output) ->
     delete c.example[data.scope]
 ```
 
+----------------------------------------
+# AutoOrdering <a id="auto-ordering"></a>
 
-
-
+By default, component outport is ordered when using `output.send`. This groups the output sending, but if order is important, you can disable it by using `component.autoOrdering = false`. [See an example of autoOrdering](https://github.com/aretecode/noflo-packets/blob/62c5161a21612e8c3d2f4f08eadd1a3b3cc0af1a/components/FilterByValue.coffee)
 
 ----------------------------------------
-# Buffer <a name="buffer"></a>
+# Buffer <a id="buffer"></a>
 
 If you need to do something advanced and the [Get](#Get) and [Stream](#Stream) helpers cannot do what you need, you can read information right from the buffer. To do that easily, there are `input.buffer` helpers.
 

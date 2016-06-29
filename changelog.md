@@ -1,4 +1,4 @@
-----------
+o----------
 # 2016-06-20
 
 ## /changelog
@@ -165,18 +165,38 @@ change `components` link from https://www.npmjs.com/browse/keyword/noflo to http
 ## process-api
 - testing & fixing the buffer example
 
-----------
 # 2016-06-25
 
 ## process-api
 - changed todo to processerror in #done
 
-## projects/#word-score
-- updating
+## projects/#word-score- updating
 
 ## legacy
 - formatting
 
 ## url
+- putting on github pages
 - changing baseurl for github pages
 - change projects link to relative
+
+-----------
+# 2016-06-26
+
+- reading the docs
+
+## legacy
+- formatting headers in porting
+- updating tested version of ported filtervalue
+
+-----------
+# 2016-06-26
+
+## process-api/#brackets
+- added how they should begin & end with the same data
+
+-----------
+# 2016-06-28
+
+## process-api/#auto-ordering
+- added in blurb about autoOrdering
