@@ -1,5 +1,5 @@
 ---
 layout: documentation
 title: Writing projects
-redirect_to: "/noflo.github.io/projects/"
+redirect_to: "https://aretecode.github.io/noflo.github.io/projects/"
 ---
