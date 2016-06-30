@@ -54,13 +54,13 @@ exports.getComponent = ->
     process: (input, output) ->
       if input.has 'in'
         # Forward data when we receive it.
-        output.sendDone out: payload
+        output.sendDone out: input.getData 'in'
 ```
 
 
 [animation]()
 
-This example component register two ports: _in_ and _out_. When it receives data in the _in_ port, it opens the _out_ port and sends the same data there. When the _in_ connection closes, it will also close the _out_ connection. So basically this component would be a simple repeater.
+This example component register two ports: _in_ and _out_. When it receives data in the _in_ port, it sends the same data to the _out_ port. So basically this component would be a simple repeater.
 
 The `exports.getComponent` function is used by NoFlo to create an instance of the component. See [Component Lifecycle](#lifecycle) for more information.
 
@@ -112,24 +112,6 @@ A running instance of a component in a NoFlo network is called a *process*. Befo
 <a id="ports"></a>
 # Ports
 
-<a id="portevents"></a>
-### Ports and events
-
-Being a flow-based programming environment, the main action in NoFlo happens through ports and their connections. All actions a component does should be triggered via input port events. There are several events that can be associated with ports:
-
-* _Attach_: there is a connection to the port
-* _Connect_: the port has started sending or receiving a data transmission
-* _BeginGroup_: the data stream after this event is associated with a given named group. Components may or may not utilize this information
-* _Data_: an individual data packet in a transmission. There might be multiple depending on how a component operates
-* _EndGroup_: A particular grouped stream of data ends
-* _Disconnect_: end of data transmission
-* _Detach_: A connection to the port has been removed
-* _IP_: An Information Packet has been sent, could be with a type of `data`, `openBracket`, or `closeBracket`. This is the modern way, and usually the only thing that should be listened for.
-
-It depends on the nature of the component how these events may be handled. Most typical components do operations on a whole transmission, meaning that they should wait for the _disconnect_ event on inports before they act, but some components can also act on single _data_ packets coming in.
-
-When a port has no connections, meaning that it was initialized without a connection, or a _detach_ event has happened, it should do no operations regarding that port.
-
 <a id="port-data-types"></a>
 ### Port data types
 
@@ -160,6 +142,7 @@ The data types supported by NoFlo include:
 * _date_
 * _function_
 * _buffer_
+* _stream_
 
 <a id="port-attributes"></a>
 ### Port attributes
@@ -170,14 +153,13 @@ There is a set of other attributes a port may have apart from its `datatype`:
 Array ports have a third value on events with the socket index :
   ```@inPorts.in.on 'data' , (event, payload, index ) -> ... ```
 
-* `buffered`: buffered ports save data in the buffer to be `read()` explicitly instead of passing it immediately to event handler (_default: `false`_);
 * `cached`: this option makes an output port re-send last emitted value when new connections are established (_default: `false`_);
 * `datatype`: string type name of data the port accepts, see above (_default: `all`_);
 * `description`: provides human-readable description of the port displayed in documentation and in [Flowhub](http://flowhub.io) inspector;
 * `required`: indicates that a connection on the port is required for component's functioning (_default: `false`_);
 * `values`: sets the list of accepted values for the port, if the value received is not in the list an error is thrown (_default: `null`_).
 * `control`: ports can be used to keep whatever the last packet that was sent to it.
-
+* `triggering`:  when to use triggering: false - on a control port where it shouldn't trigger...
 
 Here is how multiple attributes can be declared:
 ```coffeescript

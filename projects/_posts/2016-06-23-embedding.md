@@ -6,6 +6,13 @@ categories:
 weight: 9
 ---
 
+## Running via the command line
+run the graph with:
+```
+noflo-nodejs --debug graphs/Canadianness.fbp
+```
+
+
 ## 1) the same as our tests, if we want to run in the browser
 ```coffeescript
 noflo = require 'noflo'

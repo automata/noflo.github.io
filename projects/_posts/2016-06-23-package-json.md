@@ -15,6 +15,9 @@ Since `JSON` does not support comments, we can break down the parts of package.j
   # for example, candianness/DetermineEmotion
   "name": "canadianness",
 
+  # Following [semantic versioning](http://semver.org/)
+  "version": "0.0.2",
+
   # including noflo in your keywords is
   # helpful for people looking for noflo packages on npm
   "keywords": [

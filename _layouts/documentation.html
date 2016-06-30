@@ -21,6 +21,7 @@ layout: default
               </li>
               {% for post in site.categories['documentation'] %}
               {% if post.url == '/documentation/protocol/' or post.url == '/documentation/fbp/' or post.url == '/documentation/json/' or post.url == '/documentation/async-components/' %}{% continue %}{% endif %}
+              {% if post.url == '/protocol/' or post.url == '/fbp/' or post.url == '/json/' or post.url == '/async-components/' %}{% continue %}{% endif %}
               <li>
                 <a href="{{ site.baseurl }}{{ post.url }}"{% if post.url == page.url %} class="active"{% endif%}>{{ post.title }}</a>
               </li>

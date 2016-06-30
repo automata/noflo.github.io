@@ -1,6 +1,7 @@
 ---
 layout: documentation
 title: Requirements and installing
+weight: 1
 ---
 NoFlo is available [via NPM](https://npmjs.org/package/noflo), so you can install it with:
 

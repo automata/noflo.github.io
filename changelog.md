@@ -200,3 +200,28 @@ change `components` link from https://www.npmjs.com/browse/keyword/noflo to http
 
 ## process-api/#auto-ordering
 - added in blurb about autoOrdering
+
+-----------
+# 2016-06-29
+
+## components
+- fixed Payload
+- moving port events to legacy
+- adding stream datatype
+- adding triggering
+
+## process-api
+- fix `until` statement
+- clarify `input.get`
+- fixed #buffer Removing statement
+- flushing out #stream-helpers
+-
+
+## writing your own projects
+- adding file structure
+- removed
+<div class="note">
+ When you send an IP, if you do not send an openBracket and closeBracket explicitly, or let the forwardBrackets do the wrapping for you, every packet you send will emit its own openBracket and closeBracket.
+</div>
+
+

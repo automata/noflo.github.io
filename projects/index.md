@@ -14,6 +14,7 @@ categories:
 - [Planning](#planning)
 - [Researching](#researching)
 - [Pseudo code](#pseudo-code)
+- [File structure](#file-structure)
 
 ### Writing components
 - [FindEhs](/projects/find-ehs)
@@ -124,4 +125,24 @@ This is data on a table though with no apparent api, so we should get it into us
 
 
 
+-------------------------
+# File Structure <a id="file-structure"></a>
+[/Components](https://github.com/aretecode/canadianness/tree/master/components)
+  - Components that you make in your editor, or make in flowhub and sync.
 
+[/Graphs](https://github.com/aretecode/canadianness/tree/master/graphs)
+  - Graphs that are made in `fbp` are here, as are [json graphs converted from fbp]() and json graphs made, modified, and synchronized in [flowhub]()
+
+[/Spec](https://github.com/aretecode/canadianness/tree/master/spec)
+  - [fbpspec](https://github.com/aretecode/canadianness/blob/master/spec/fbpspec.coffee)
+    - this file and all the yml files link to the other think
+  - [runner.html](https://github.com/aretecode/canadianness/blob/master/spec/runner.html)
+    - this is what to run in the browser
+  - [mocha tests]
+    -
+
+[.travis.yml](https://github.com/aretecode/canadianness/blob/master/.travis.yml)
+flowhub.json @TODO: link
+Gruntfile.coffee @TODO: improve
+index?
+package.json link
