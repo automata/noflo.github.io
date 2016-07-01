@@ -1,6 +1,9 @@
 ---
 layout: documentation
 title: Publishing component libraries
+categories:
+ - documentation
+weight: 7
 ---
 
 - [Publishing components for Node.js](#publishing-your-components-for-node-js)

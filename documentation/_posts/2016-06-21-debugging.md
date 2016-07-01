@@ -1,6 +1,9 @@
 ---
 layout: documentation
 title: Debugging
+categories:
+ - documentation
+weight: 8.1
 ---
 
 common errors:

@@ -1,6 +1,9 @@
 ---
 layout: documentation
 title: Best Practices
+categories:
+ - documentation
+weight: 8
 ---
 
 ### Component Best Practices

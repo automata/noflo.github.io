@@ -225,3 +225,29 @@ change `components` link from https://www.npmjs.com/browse/keyword/noflo to http
 </div>
 
 
+-----------
+# 2016-06-30
+
+## general
+- changing `thing` and `stuff` to use concrete terms
+
+## nav
+- adding page weight to documentation pages
+- and support for weights in documentation layout
+- making /projects pages be subpages of /documentation
+
+## /information-packets
+- creating page from https://github.com/noflo/noflo/issues/290
+- adding scopes examples
+- adding a paragraph explaining concurrency issues within a graph and how scope solves it.
+
+## /process-api
+- fixing `get` by using until
+- clarifying scope concurrency - moving to /information-packets
+- adding forwardBrackets example
+
+## /testing
+- moving to /projects/testing
+
+## /projects/index/#file-structure
+- flushing it out more

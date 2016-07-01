@@ -1,6 +1,9 @@
 ---
 layout: documentation
 title: Components
+categories:
+ - documentation
+weight: 3
 ---
 
 - [structure](#structure)

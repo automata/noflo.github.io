@@ -1,10 +1,12 @@
 ---
 layout: documentation
 title: Process API
-weight: 4
+categories:
+ - documentation
+weight: 6
 ---
 
-The main idea behind process api is having all port stuff come into one place, and all of the outputs sent out from the same place.
+The main idea behind process api is having all port stuff events into one place, and all of the outputs sent out from the same place.
 
 The way the process api works is it gets called for each event.
 If `done` does not get called, it keeps getting called, and the IPs that are passed to it keep getting appended to the buffer.
@@ -16,6 +18,9 @@ component.process returns instance of component
 -----------------------------
 ### Index
 - [Information Packets](#ips)
+  - [Data](#data-ip)
+  - [openBracket](#open-bracket-ip)
+  - [closeBracket](#close-bracket-ip)
 - [Component States](#component-states)
   - [Preconditions](#preconditions)
   - [Processing](#processing)
@@ -26,23 +31,14 @@ component.process returns instance of component
 - [Firing Patterns](#firing-patterns)
   - [Full Stream](#full-stream)
   - [Per Packet](#per-packet)
-- [Scope](#scope)
-- [Auto Ordering](#auto-ordering)
+- [Ordering](#ordering)
+  - [Auto Ordering](#auto-ordering)
+  - [Ordered](#ordered)
 - [Buffer](#buffer)
 - [Brackets](#brackets)
 - [BracketForwarding](#bracket-forwarding)
 
 ----------
-
-# <a id="ips"></a> Information Packets (IPs)
-- Valid types: 'data', 'openBracket', 'closeBracket'
-- can be created using `noflo.IP`
-  - `new noflo.IP 'validType', 'data here'`
-  - `new noflo.IP 'data', 'canada', scope: 42, index: 2, clonable: true, owner: 'eh', groups: []`
-- can check if an object is an IP by using `noflo.IP.isIP(obj)`
-
-----------
-
 
 
 
@@ -134,7 +130,7 @@ using `input.get` and `input.getData` will remove the item retreived using it fr
 
 ## <a name="sending"></a>Sending
 
-If you're taking something and `send`ing multiple things, you should make them a Stream, meaning it should be wrapped with an `openBracket` and `closeBracket`:
+If you're taking something and `send`ing multiple [IPs](/information-packets), you should make them a Stream, meaning it should be wrapped with an `openBracket` and `closeBracket`:
 
 ```coffeescript
 output.send new noflo.IP 'openBracket'
@@ -250,7 +246,46 @@ Brackets are automatically forwarded from 'in' inPort to outPorts 'out' and 'err
 
 Bracket forwarding is a way to pass on brackets so that you don't have to deal with brackets coming from that in port in the process function.
 
-If an inport receives an `openBracket`, `data`, and `closeBracket` and you are using `bracketForwarding`, you can get the `data`, process it and send stuff out, and what you send out will be wrapped in the `openBracket` and `closeBracket`.
+If an inport receives an `openBracket`, `data`, and `closeBracket` and you are using `bracketForwarding`, you can get the `data`, process it and send [IPs](/information-packets) out, and what you send out will be wrapped in the `openBracket` and `closeBracket`.
+
+For example, [IPs](/information-packets) coming into an `in` port:
+
+```md
+  1) openBracket ('name')
+  2) data
+  3) closeBracket ('name')
+```
+
+The component handling the [IPs](/information-packets):
+
+```coffeescript
+exports.getComponent = ->
+  c = new noflo.Component
+    icon: 'gear'
+    inPorts:
+      eh:
+        datatype: 'all'
+    outPorts:
+      canada:
+        datatype: 'object'
+    forwardBrackets:
+      eh: ['canada']
+    process: (input, output) ->
+      return unless input.has 'eh'
+      output.send canada: 'one'
+      output.send canada: 'two'
+      output.done()
+```
+
+A socket listening to the `canada` outPort would receive:
+
+```md
+  1) openBracket ('name')
+  2) 'one'
+  2) 'two'
+  3) closeBracket ('name')
+```
+
 
 When sending brackets as a group, the `openBracket` and `closeBracket` should contain the same data.
 
@@ -259,6 +294,22 @@ Control ports are not wrapped with brackets, they only deal with data.
 </div>
 
 An example of bracket forwarding can be found in [Loading Components inline](/documentation/testing/#loading-components-inline)
+
+-----------------------------------------------------
+
+# <a id="stream-helpers"></a>Stream Helpers
+
+## hasStream <a id="has-stream"></a>
+will check if it has the [full stream](#full-stream)
+
+`input.hasStream portname`
+
+## getStream <a id="get-stream"></a>
+will get the [full stream](#full-stream), then reset the [buffer](#buffer) state for that port.
+
+`input.getStream portname`
+
+For an example, see [DetermineEmotion](https://github.com/aretecode/canadianness/blob/master/components/DetermineEmotion.coffee)
 
 
 -----------------------------------------------------
@@ -281,7 +332,8 @@ sometimes, there is no `openBracket` or `closeBracket`, and there is only `data`
 ```
 
 
-# <a id="full-stream"></a> Full Stream
+## <a id="full-stream"></a> Full Stream
+
 
 ```md
 # get everything from here...
@@ -294,7 +346,7 @@ sometimes, there is no `openBracket` or `closeBracket`, and there is only `data`
 
 or if there is no wrapping brackets:
 
-```
+```md
 # get everything from here...
 1) data
 # ...to here
@@ -303,27 +355,27 @@ or if there is no wrapping brackets:
 example implementation:
 
 ```coffeescript
-  exports.getComponent = ->
-    c = new noflo.Component
-      icon: 'gear'
-      inPorts:
-        eh:
-          datatype: 'all'
-          required: true
-      outPorts:
-        canada:
-          datatype: 'object'
-          required: true
-      process: (input, output) ->
-        return unless input.hasStream 'in'
-        stream = input.getStream 'in'
-        # ...do stuff with the stream...
-        output.sendDone canada: stream
+exports.getComponent = ->
+  c = new noflo.Component
+    icon: 'gear'
+    inPorts:
+      eh:
+        datatype: 'all'
+        required: true
+    outPorts:
+      canada:
+        datatype: 'object'
+        required: true
+    process: (input, output) ->
+      return unless input.hasStream 'in'
+      stream = input.getStream 'in'
+      # ...do stuff with the stream...
+      output.sendDone canada: stream
 ```
 
 
-# <a id="per-packet"></a>Per Packet
-```xml
+## <a id="per-packet"></a>Per Packet
+```md
 1) openBracket # don't get this
 2) data # get only this
 3) data # and then only this
@@ -346,69 +398,24 @@ exports.getComponent = ->
     c.forwardBrackets =
       eh: ['canada']
     process: (input, output) ->
-      return unless input.has 'in', (ip) -> ip.type is 'data'
-      data = input.getData 'in'
+      return unless input.has 'eh', (ip) -> ip.type is 'data'
+      data = input.getData 'eh'
+      until data.type is 'data'
+        data = data.get 'eh'
       # ...do stuff with the data...
       output.send canada: data
 ```
 
------------------------------------------------------
 
-# <a id="stream-helpers"></a>Stream Helpers
-
-## hasStream <a id="has-stream"></a>
-will check if it has the [full stream](#full-stream)
-
-`input.hasStream portname`
-
-## getStream <a id="get-stream"></a>
-will get the [full stream](#full-stream), then reset the [buffer](#buffer) state for that port.
-
-`input.getStream portname`
-
-For an example, see [DetermineEmotion](https://github.com/aretecode/canadianness/blob/master/components/DetermineEmotion.coffee)
-
-
----------------------
-# <a id="scope"></a>Scope
-## Use scopes for concurrency.
-
-<div class="note">
-Every IP has a scope, it is null by default.
-</div>
-
-```coffeescript
-c.process (input, output) ->
-  data = input.get 'in'
-  console.log data.scope
-```
-
-If you need to access the scope of the latest bracket being sent in:
-
-```coffeescript
-c.process (input, output) ->
-  console.log input.scope
-```
-
-When you have to set state and cannot keep things in the buffer, assign properties to use scoped indexes, and dont forget to reset the state when required.
-
-```coffeescript
-c.example = {}
-
-c.process (input, output) ->
-  return unless input.ip.type is 'data'
-  data = input.get 'in'
-  c.example[data.scope] = data.data
-  output.done()
-
-  if true
-    delete c.example[data.scope]
-```
 
 ----------------------------------------
-# AutoOrdering <a id="auto-ordering"></a>
+# Ordering <a id="ordering"></a>
 
+## AutoOrdering <a id="ordering"></a>
 By default, component outport is ordered when using `output.send`. This groups the output sending, but if order is important, you can disable it by using `component.autoOrdering = false`. [See an example of autoOrdering](https://github.com/aretecode/noflo-packets/blob/62c5161a21612e8c3d2f4f08eadd1a3b3cc0af1a/components/FilterByValue.coffee)
+
+## Ordered <a id="ordered"></a>
+the `ordered` component option that makes the component maintain the order between input and output regardless of streams.
 
 ----------------------------------------
 # Buffer <a id="buffer"></a>

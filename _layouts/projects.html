@@ -16,12 +16,31 @@ layout: default
           <nav>
             <ul class="sidebar__nav">
               <li>
-                <a href="{{ site.baseurl }}/projects/"{% if page.url == '/projects/index.html' %} class="active"{% endif%}>Writing your own project</a>
+                <a href="{{ site.baseurl }}/documentation/"{% if page.url == '/documentation/index.html' %} class="active"{% endif%}>Getting Started with NoFlo</a>
               </li>
-              {% assign posts = site.categories['projects'] | sort:"weight"  %}
-              {% for post in posts %}
+              {% assign docposts = site.categories['documentation'] | sort:"weight" %}
+              {% for post in docposts %}
+              {% if post.url == '/documentation/protocol/' or post.url == '/documentation/fbp/' or post.url == '/documentation/json/' or post.url == '/documentation/async-components/' %}{% continue %}{% endif %}
+              {% if post.url == '/protocol/' or post.url == '/fbp/' or post.url == '/json/' or post.url == '/async-components/' %}{% continue %}{% endif %}
               <li>
                 <a href="{{ site.baseurl }}{{ post.url }}"{% if post.url == page.url %} class="active"{% endif%}>{{ post.title }}</a>
+
+                {% if post.url == '/documentation/writing-projects/' %}
+                  <ul class="sidebar__nav">
+
+                    <!--<li>
+                      <a href="{{ site.baseurl }}/projects/"{% if page.url == '/projects/index.html' %} class="active"{% endif%}>Writing your own project</a>
+                    </li>
+                    -->
+                    {% assign posts = site.categories['projects'] | sort:"weight" %}
+                    {% for post in posts %}
+                    <li>
+                      <a href="{{ site.baseurl }}{{ post.url }}"{% if post.url == page.url %} class="active"{% endif%}>{{ post.title }}</a>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+
               </li>
               {% endfor %}
             </ul>
