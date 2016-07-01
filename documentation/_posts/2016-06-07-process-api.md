@@ -411,11 +411,28 @@ exports.getComponent = ->
 ----------------------------------------
 # Ordering <a id="ordering"></a>
 
-## AutoOrdering <a id="ordering"></a>
-By default, component outport is ordered when using `output.send`. This groups the output sending, but if order is important, you can disable it by using `component.autoOrdering = false`. [See an example of autoOrdering](https://github.com/aretecode/noflo-packets/blob/62c5161a21612e8c3d2f4f08eadd1a3b3cc0af1a/components/FilterByValue.coffee)
-
 ## Ordered <a id="ordered"></a>
-the `ordered` component option that makes the component maintain the order between input and output regardless of streams.
+The `ordered` component option that makes the component maintain the order between `input` and `output` regardless of streams. (_default is `false`_)
+
+<div class="note">
+By default, component outport is ordered when using [`output.send`](#sending).
+</div>
+
+For example, a synchronous `KnexDbSelect` component that outputs rowsets in the same order it gets queries, regardless of what time they take.
+
+`ordered` will not work unless `autoOrdering` is disabled.
+
+## AutoOrdering <a id="auto-ordering"></a>
+The `autoOrdering` component option groups the output sending. (_default is `true`_)
+
+`autoOrdering` temporarily enables `ordered` for components still having `ordered: false` to make them stream-safe.
+
+If order is important, it can be disabled by setting `component.autoOrdering = false`. [See an example of autoOrdering](https://github.com/aretecode/noflo-packets/blob/62c5161a21612e8c3d2f4f08eadd1a3b3cc0af1a/components/FilterByValue.coffee)
+
+What `autoOrdering` does is automatically turns `ordered` on when it sees a stream coming, so it makes sure (or at least tries to) that the output stream is the result of processing exactly the same sequence as the input stream.
+
+
+
 
 ----------------------------------------
 # Buffer <a id="buffer"></a>

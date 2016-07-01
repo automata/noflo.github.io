@@ -251,3 +251,26 @@ change `components` link from https://www.npmjs.com/browse/keyword/noflo to http
 
 ## /projects/index/#file-structure
 - flushing it out more
+
+
+-----------
+# 2016-7-01
+
+## /information-packets
+- remove outdated bit
+
+## /legacy
+- remove incorrect information
+<!--
+### Buffer
+WirePattern | Process
+| --- | --- |
+| if it is ordered (which it is by default), if you have for example `in: ['one', 'two']` and `two` gets data before `one`, the packet for `two` will be dropped. Then if a packet comes to `one` and the next one comes to `two`, it will be triggered. | every packet that comes in is appended to the buffer for the port it was sent to, when you use `get*` functions or manually access the buffer, some or all data will be removed from the buffer. |
+-->
+
+## /components/#port-attributes
+- flush out control & triggering
+
+## /process-api/#ordering
+- add details to ##ordered & ##auto-ordering
+

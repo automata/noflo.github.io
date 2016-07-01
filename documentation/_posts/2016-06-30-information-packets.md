@@ -49,8 +49,6 @@ Arbitrary properties can be set in an IP object. There is a list of such propert
 
 A process should use its ports in order to send or receive IPs. We have updated the Ports API so that new components can benefit from using object IPs, while the old components still see them as raw events and raw data.
 
-This section covers low level per-port API which requires manual handling of synchronization and firing patterns. In most cases it is recommended to use high level Component Process API (WIP, see #205) instead.
-
 ### Input <a id="input"></a>
 
 A component accepting IP objects as its input should use `process` to handle thme:

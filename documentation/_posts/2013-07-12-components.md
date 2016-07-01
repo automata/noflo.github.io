@@ -161,8 +161,8 @@ Array ports have a third value on events with the socket index :
 * `description`: provides human-readable description of the port displayed in documentation and in [Flowhub](http://flowhub.io) inspector;
 * `required`: indicates that a connection on the port is required for component's functioning (_default: `false`_);
 * `values`: sets the list of accepted values for the port, if the value received is not in the list an error is thrown (_default: `null`_).
-* `control`: ports can be used to keep whatever the last packet that was sent to it.
-* `triggering`:  when to use triggering: false - on a control port where it shouldn't trigger...
+* `control`: ports can be used to keep whatever the last packet that was sent to it. They only keep data and they silently drop brackets. (_default: `false`_)
+* `triggering`:  this boolean flag is useful to set as `triggering: false` on a `control` port where the data should be stored, but the `process` handler should not be triggered/called when data comes into that port. (_default: `true`_)
 
 Here is how multiple attributes can be declared:
 ```coffeescript
