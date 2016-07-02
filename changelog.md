@@ -274,3 +274,5 @@ WirePattern | Process
 ## /process-api/#ordering
 - add details to ##ordered & ##auto-ordering
 
+## nav
+- adding styles to make subpages indented

@@ -1182,6 +1182,10 @@ blockquote {
       border-bottom: 1px solid #ffffff;
       list-style: none;
       color: #000;
+
+      .sidebar__nav {
+        margin-left: 15px !important;
+      }
     }
 
     a {
@@ -1196,9 +1200,7 @@ blockquote {
         border-left: 2px solid $blue;
         text-decoration: none;
       }
-
     }
-
   }
 
   .sidebar__image {
