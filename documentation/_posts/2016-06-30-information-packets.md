@@ -9,7 +9,9 @@ weight: 2
 - [IP object](#ip-object)
   - [Primary properties](#primary-properties)
     - [Type](#type)
-    - [Data](#data)
+      - [Data](#data)
+      - [Open Bracket](#open-bracket)
+      - [Close Bracket](#close-bracket)
   - [Optional properties](#optional-properties)
 - [Ports API](#ports-api)
   - [Input](#input)
@@ -26,8 +28,10 @@ Any IP object has 2 mandatory properties: `.type` and `.data`.
 
 #### type <a id="type"></a>
 
+<a id="data"></a>
+<a id="open-bracket"></a>
+<a id="close-bracket"></a>
 There are 3 types of objects:
-
  - `data` - a normal data packet
  - `openBracket` - a packet indicating a beginning of a substream
  - `closeBracket` - a packet indicating an ending of a substream

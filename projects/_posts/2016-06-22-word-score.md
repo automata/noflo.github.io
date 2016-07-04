@@ -40,27 +40,6 @@ exports.getComponent = ->
 
 
 ```coffeescript
-noflo = require 'noflo'
-
-exports.getComponent = ->
-  c = new noflo.Component
-    description: 'Find how the input words compare against the list of weighted words'
-    inPorts:
-      list:
-        datatype: 'array'
-        description: 'list of words we will use with the list of content'
-        control: true
-        required: true
-      content:
-        datatype: 'string'
-        description: 'the content which we will determine the score of'
-        required: true
-    outPorts:
-      score:
-        datatype: 'number'
-        description: 'the resulting number of comparing the content with the list'
-        required: true
-
   # we are only using data, so we do not need any brackets sent to the inPorts, pass them along
   c.forwardBrackets =
     list: 'out'
@@ -75,38 +54,6 @@ exports.getComponent = ->
 
 
 ```coffeescript
-noflo = require 'noflo'
-natural = require 'natural'
-tokenizer = new natural.WordTokenizer()
-
-exports.getComponent = ->
-  c = new noflo.Component
-    description: 'Find how the input words compare against the list of weighted words'
-    inPorts:
-      list:
-        datatype: 'array'
-        description: 'list of words we will use with the list of content'
-        control: true
-        required: true
-      content:
-        datatype: 'string'
-        description: 'the content which we will determine the score of'
-        required: true
-    outPorts:
-      score:
-        datatype: 'number'
-        description: 'the resulting number of comparing the content with the list'
-        required: true
-
-  # we are only using data, so we do not need any brackets sent to the inPorts, pass them along
-  c.forwardBrackets =
-    list: 'out'
-    content: 'out'
-
-  c.process (input, output) ->
-    # our precondition, make sure it has both before trying to get the data
-    return unless input.has 'list', 'content', (ip) -> ip.type is 'data'
-
     # get the data
     # content = input.getData 'content'
     # list = input.getData 'list'

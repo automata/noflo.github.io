@@ -6,14 +6,14 @@ categories:
 weight: 3
 ---
 
-- [structure](#structure)
-- [lifecycle](#lifecycle)
-- [subgraphs](#subgraphs)
-- [design](#design)
-- [ports](#ports)
-  - [data types](#port-data-types)
-  - [attributes](#port-attributes)
-  - [events](#portevents)
+- [Structure](#structure)
+- [Lifecycle](#lifecycle)
+- [SubGraphs](#subgraphs)
+- [Design](#design)
+- [Ports](#ports)
+  - [Data Types](#port-data-types)
+  - [Attributes](#port-attributes)
+  - [Events](#portevents)
 
 [picture](ingredient)
 

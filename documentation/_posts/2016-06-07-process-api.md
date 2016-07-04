@@ -28,15 +28,21 @@ component.process returns instance of component
     - [Sending](#sending)
   - [Done](#done)
   - [Stream Helpers](#stream-helpers)
+    - [hasStream](#has-stream)
+    - [getStream](#get-stream)
+  - [Data Stream Helpers](#data-stream-helpers)
+    - [hasDataStream](#has-data-stream)
+    - [getDataStream](#get-data-stream)
+    - [Flat Stream](#flat-stream)
 - [Firing Patterns](#firing-patterns)
   - [Full Stream](#full-stream)
   - [Per Packet](#per-packet)
+- [Brackets](#brackets)
+  - [BracketForwarding](#bracket-forwarding)
 - [Ordering](#ordering)
   - [Auto Ordering](#auto-ordering)
   - [Ordered](#ordered)
 - [Buffer](#buffer)
-- [Brackets](#brackets)
-- [BracketForwarding](#bracket-forwarding)
 
 ----------
 
@@ -235,7 +241,7 @@ An Error can be send to `output.sendDone` or `output.done` which will send the E
 
 
 # <a name="Brackets"></a>Brackets
-### Brackets are used to group things.
+Brackets are [Information Packets](/documentation/information-packets/) used to group things. Read more about them in [Information Packets Types](/documentation/information-packets/#type).
 
 ## <a name="BracketForwarding"></a>BracketForwarding
 [animation]()
@@ -261,7 +267,6 @@ The component handling the [IPs](/information-packets):
 ```coffeescript
 exports.getComponent = ->
   c = new noflo.Component
-    icon: 'gear'
     inPorts:
       eh:
         datatype: 'all'
@@ -286,12 +291,68 @@ A socket listening to the `canada` outPort would receive:
   3) closeBracket ('name')
 ```
 
-
 When sending brackets as a group, the `openBracket` and `closeBracket` should contain the same data.
 
 <div class="note">
 Control ports are not wrapped with brackets, they only deal with data.
 </div>
+
+A more advanced example using sub-streams (should be avoided if possible):
+
+sending the stream:
+```md
+1) openBracket, '$outtermost'
+
+2) openBracket, '$sub1'
+3) data, 'eh'
+4) closeBracket, '$sub2'
+
+5) openBracket, '$sub2'
+6) data, 'canada'
+7) data, 'igloo'
+8) closeBracket, '$sub2'
+
+9) openBracket, '$outtermost'
+```
+
+using the component:
+
+```coffeescript
+exports.getComponent = ->
+  c = new noflo.Component
+    inPorts:
+      in:
+        datatype: 'all'
+    outPorts:
+      out:
+        datatype: 'object'
+    process: (input, output) ->
+      return unless input.has 'in'
+      data = input.get 'in'
+      until data.type is 'data'
+        data = input.get 'in'
+
+      output.send data + ' eh!'
+      output.done()
+```
+
+output stream would be:
+
+```md
+1) openBracket, '$outtermost'
+
+2) openBracket, '$sub1'
+3) data, 'eh eh!'
+4) closeBracket, '$sub2'
+
+5) openBracket, '$sub2'
+6) data, 'canada eh!'
+7) data, 'igloo eh!'
+8) closeBracket, '$sub2'
+
+9) openBracket, '$outtermost'
+```
+
 
 An example of bracket forwarding can be found in [Loading Components inline](/documentation/testing/#loading-components-inline)
 
@@ -302,15 +363,132 @@ An example of bracket forwarding can be found in [Loading Components inline](/do
 ## hasStream <a id="has-stream"></a>
 will check if it has the [full stream](#full-stream)
 
-`input.hasStream portname`
+```coffeescript
+input.hasStream portname
+```
+
+It can also take multiple port names as arguments:
+
+```coffeescript
+input.hasStream 'eh', 'canada'
+```
 
 ## getStream <a id="get-stream"></a>
 will get the [full stream](#full-stream), then reset the [buffer](#buffer) state for that port.
 
-`input.getStream portname`
+```coffeescript
+stream = input.getStream portname
+```
+
+It can also take multiple port names as arguments:
+
+```coffeescript
+[eh, canada] = input.getStream 'eh', 'canada'
+```
 
 For an example, see [DetermineEmotion](https://github.com/aretecode/canadianness/blob/master/components/DetermineEmotion.coffee)
 
+--------
+# <a id="data-stream-helpers"></a>Data Stream Helpers
+
+Data Stream helpers are available so a component can receive a full stream, yet only have to deal with only the [data](/documentation/information-packets/#data) and let [bracketForwarding](#bracket-forwarding) deal with the [brackets](/documentation/information-packets/#open-bracket).
+The data stream helpers are mainly used for ports that receive [Flat Streams](#flat-streams).
+
+## hasDataStream <a id="has-data-stream"></a>
+
+hasDataStream checks similarily to [`hasStream`](#has-stream), however, when using `data: true` on the port and allowing [bracketForwarding](#bracket-forwarding) to do things behind the scenes, it has a different way of checking.
+
+<div class="note">
+hasDataStream will only work if the port `data` property is `true`.
+</div>
+
+## getDataStream <a id="get-data-stream"></a>
+
+Often when using streams, all that is required is getting the `data` from the stream.
+
+Using only `getStream` that might look like this:
+
+```coffeescript
+c.process (input, output) ->
+  return unless input.hasStream 'in'
+  stream = input.getStream 'in'
+    .filter (ip) -> ip.type is 'data'
+    .map (ip) -> ip.data
+  console.log stream
+```
+
+This can be achieving much easier using the `getDataStream` helper:
+
+```coffeescript
+c.process (input, output) ->
+  return unless input.hasStream 'in'
+  stream = input.getDataStream 'in'
+  console.log stream
+```
+
+## Flat Streams <a id="flat-streams"></a>
+[Data Streams](#data-stream-helpers) using the [hasDataStream](#has-data-stream) are usually only beneficial using [flat streams](#flat-streams).
+
+This is an example flat-stream, there are no nested sub-streams:
+
+```md
+1) openBracket, $outtermost
+2) data, 'eh'
+3) data, 'canada'
+4) data, 'igloo'
+5) closeBracket, $outtermost
+```
+
+The following is a _non flat stream_ because the data has sub-streams. When input comes in, sometimes packets are wrapped in sub-streams. For example (after the comma is the data in the packet):
+
+```md
+1) openBracket, $outtermost
+
+2) openBracket, $sub-stream-a
+3) data, 'eh'
+4) closeBracket, $sub-stream-a
+
+5) openBracket, $sub-stream-b
+6) data, 'canada'
+7) data, 'igloo'
+8) closeBracket, $sub-stream-b
+
+9) closeBracket, $outtermost
+```
+
+If using this example sub-stream with dataStream helpers using this example component:
+
+```coffeescript
+exports.getComponent = ->
+  c = new noflo.Component
+    description: 'takes in data, and appends "eh" to the end of each string'
+    inPorts:
+      in:
+        datatype: 'string'
+        data: true
+    outPorts:
+      out:
+        datatype: 'string'
+    process: (input, output) ->
+      return unless input.hasDataStream 'in'
+      stream = input.getDataStream 'in'
+      for data in stream
+        output.send data + ' eh!'
+      output.done()
+```
+
+The resulting output stream would have lost the sub-stream brackets:
+
+```md
+1) openBracket, $outtermost
+2) data, 'eh eh!'
+3) data, 'canada eh!'
+4) data, 'igloo eh!'
+5) closeBracket, $outtermost
+```
+
+
+See [noflo-packets/Compact](https://raw.githubusercontent.com/aretecode/noflo-packets/549b67f9e500a958e0283f9d4b8308b43aac66d7/components/Compact.coffee) for an example using [hasDataStream](#has-data-stream) and [getDataStream](#get-data-stream).
 
 -----------------------------------------------------
 # <a id="firing-patterns"></a> Firing Patterns
@@ -453,6 +631,12 @@ To get the current buffer for a specific port:
 
 ```coffeescript
 currentInBuffer = input.buffer.get 'in'
+```
+
+To get the current buffer for a multiple ports:
+
+```coffeescript
+[inBuffer, ehBuffer] = input.buffer.get 'in', 'eh'
 ```
 
 To find IPs matching criteria for a certain port:

@@ -29,7 +29,7 @@ exports.getComponent = ->
         datatype: 'object'
 ```
 
-# 2) define our preconditions
+## 2) define our preconditions
 
 ```coffeescript
 noflo = require 'noflo'

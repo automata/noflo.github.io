@@ -276,3 +276,46 @@ WirePattern | Process
 
 ## nav
 - adding styles to make subpages indented
+
+## /projects - components
+- use short version
+
+## summary
+
+-----------
+# 2016-07-03
+
+## /process-api
+- adding section on dataStream
+- add multiple arguments for getStream, hasStream, buffer.get
+- add advanced forwardBrackets example to show how it works
+
+## /information-packets
+- updating #data, #open-brackets, and #close-brackets
+
+## projects
+/#index
+- add Gruntfile link
+/#file-structure
+- change formatting
+- fix fbpspec file definition
+/#determine-emotion
+- lower header level for #2
+/#testing
+- add link to fbpspec.coffee
+/#package-json
+- link to canadianness package.json
+
+## legacy
+- updating index
+- fix `use` list formatting
+
+## /sitemap
+- creating
+
+## footer
+- adding sitemap link
+
+## nav
+- fixing index page on documentation when active
+
