@@ -11,7 +11,7 @@ The main idea behind process api is having all [port events](/documentation/info
 The way the process api works is the async process function gets called for each event. If `done` does not get called, the process function will getting called, and the IPs that are passed to it keep getting appended to the buffer.
 
 <div class="note">
-Tip: <pre>component.process</pre> returns an instance of component, so you don't have to
+Tip: <code>component.process</code> returns an instance of component, so you don't have to
 return it on your component definition.
 </div>
 
