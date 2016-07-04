@@ -76,12 +76,13 @@ Search Google for a library that may be able to help us with dealing with word w
 Search Google for the spelling differences
 [Canadian vs uk vs usa spelling](https://www.google.com/search?q=canadian%20vs%20uk%20vs%20usa%20spelling)
 
-perfect
-[Canadian, British and American Spelling](http://www.lukemastin.com/testing/spelling/cgi-bin/database.cgi?action=view_category&database=spelling&category=C)
+
+[Canadian, British and American Spelling](http://www.lukemastin.com/testing/spelling/cgi-bin/database.cgi?action=view_category&database=spelling&category=C) Perfect!
+
 This is data on a table though with no apparent api, so we should get it into usable data (json).
-[get table as json](https://www.google.com/search?q=get+table+data+as+json)
-[table to json](http://johndyer.name/html-table-to-json/)
-[table to json jquery](https://www.dynatable.com/)
+- [get table as json](https://www.google.com/search?q=get+table+data+as+json)
+- [table to json](http://johndyer.name/html-table-to-json/)
+- [table to json jquery](https://www.dynatable.com/)
 
 
 -------------------------
@@ -139,6 +140,6 @@ This is data on a table though with no apparent api, so we should get it into us
 
 - [.travis.yml](https://github.com/aretecode/canadianness/blob/master/.travis.yml)
 - [flowhub.json](http://docs.flowhub.io/article/84-getting-started-node-js)
-- (Gruntfile.coffee](https://github.com/aretecode/canadianness/blob/master/GruntFile.yml)
+- [Gruntfile.coffee](https://github.com/aretecode/canadianness/blob/master/GruntFile.yml)
 - index.coffee - a file that might run your program by loading a graph and send data to it.
 - [package.json](/projects/package-json)

@@ -165,6 +165,7 @@ Array ports have a third value on events with the socket index :
 * `triggering`:  this boolean flag is useful to set as `triggering: false` on a `control` port where the data should be stored, but the `process` handler should not be triggered/called when data comes into that port. (_default: `true`_)
 
 Here is how multiple attributes can be declared:
+
 ```coffeescript
 component.inPorts.add 'id',
   datatype: 'int'
@@ -185,6 +186,7 @@ component.inPorts.add('user', {
 ```
 
 This can alternatively be done using constructors explicitly:
+
 ```coffeescript
 noflo = require 'noflo'
 
@@ -212,6 +214,7 @@ component.inPorts = new noflo.inPorts({
 ```
 
 The third way this can be done is passing in the ports as objects to the component constructor.
+
 ```coffeescript
 c = new noflo.Component
   icon: 'gear'

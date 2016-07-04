@@ -20,8 +20,8 @@ layout: default
               </li>
               {% assign docposts = site.categories['documentation'] | sort:"weight" %}
               {% for post in docposts %}
-              {% if post.url == '/documentation/protocol/' or post.url == '/documentation/fbp/' or post.url == '/documentation/json/' or post.url == '/documentation/async-components/' %}{% continue %}{% endif %}
-              {% if post.url == '/protocol/' or post.url == '/fbp/' or post.url == '/json/' or post.url == '/async-components/' %}{% continue %}{% endif %}
+              {% if post.url == '/documentation/protocol/' or post.url == '/documentation/fbp/' or post.url == '/documentation/json/' or post.url == '/documentation/async-components/' or post.url == '/documentation/sitemap/' %}{% continue %}{% endif %}
+              {% if post.url == '/protocol/' or post.url == '/fbp/' or post.url == '/json/' or post.url == '/async-components/' or post.url == '/sitemap/' %}{% continue %}{% endif %}
               <li>
                 <a href="{{ site.baseurl }}{{ post.url }}"{% if post.url == page.url %} class="active"{% endif%}>{{ post.title }}</a>
 

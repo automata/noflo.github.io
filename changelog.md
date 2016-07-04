@@ -319,3 +319,18 @@ WirePattern | Process
 ## nav
 - fixing index page on documentation when active
 
+-----------
+# 2016-07-04
+
+/components
+- fixing formatting in multiple attributes
+
+/projects
+- fixing grunt link
+- fixing researching grammar
+
+/nav
+- igloring sitemap in nav on /projects
+
+/process-api
+- all port stuff events -> change

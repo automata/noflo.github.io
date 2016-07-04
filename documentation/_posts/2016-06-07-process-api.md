@@ -6,10 +6,10 @@ categories:
 weight: 6
 ---
 
-The main idea behind process api is having all port stuff events into one place, and all of the outputs sent out from the same place.
+The main idea behind process api is having all [port events](/documentation/information-packets/#type) come into one place, and all of the [output](#sending)s sent out from the same place.
 
 The way the process api works is it gets called for each event.
-If `done` does not get called, it keeps getting called, and the IPs that are passed to it keep getting appended to the buffer.
+If `done` does not get called, the process function will getting called, and the IPs that are passed to it keep getting appended to the buffer.
 
 <div class="note">
 component.process returns instance of component
@@ -17,10 +17,6 @@ component.process returns instance of component
 
 -----------------------------
 ### Index
-- [Information Packets](#ips)
-  - [Data](#data-ip)
-  - [openBracket](#open-bracket-ip)
-  - [closeBracket](#close-bracket-ip)
 - [Component States](#component-states)
   - [Preconditions](#preconditions)
   - [Processing](#processing)
@@ -114,7 +110,7 @@ until data.type is 'data'
 If the port name is not passed in as an argument, it will try to retrieve from the `in` In Port. Meaning, `input.getData` is the same as `input.getData 'in'`.
 
 <div class="note">
-when you `input.get|getData` from a `control` port, it does not reset the `control` ports buffer because the data is meant to persist until new data is sent to that `control` port. `control` ports also only accept `data` ips. If it is sent bracket `IP`s, they will be dropped silently.
+when you <pre>input.get|getData</pre> from a <pre>control</pre> port, it does not reset the <pre>control</pre> ports buffer because the data is meant to persist until new data is sent to that <pre>control</pre> port. <pre>control</pre> ports also only accept <pre>data</pre> ips. If it is sent bracket <pre>IP</pre>s, they will be dropped silently.
 </div>
 
 `input.getData` will accept port(s) as the parameter.
@@ -131,7 +127,7 @@ Passing in multiple ports will give an array of the data (using [destructuring](
 ```
 
 <div class="note">
-using `input.get` and `input.getData` will remove the item retreived using it from the buffer.
+using <pre>input.get</pre> and <pre>input.getData</pre> will remove the item retreived using it from the buffer.
 </div>
 
 ## <a name="sending"></a>Sending
@@ -215,7 +211,7 @@ To see more usage of sending, including using streams, check out [writing your o
 When you are done processing your data, call `output.done()` (or `output.sendDone` if it makes sense for how you're using it.)
 
 <div class="note">
-An Error can be send to `output.sendDone` or `output.done` which will send the Error to the `error` port. If there is not an `error` port defined, it will propogate back up, the same happens if you just throw an Error. `output.sendDone new Error('we have a problem')` In the future, it may emit a proccesserror.
+An Error can be send to <pre>output.sendDone</pre> or <pre>output.done</pre> which will send the Error to the <pre>error</pre> port. If there is not an <pre>error</pre> port defined, it will propogate back up, the same happens if you just throw an Error. <pre>output.sendDone new Error('we have a problem')</pre> In the future, it may emit a proccesserror.
 </div>
 
 
@@ -399,7 +395,7 @@ The data stream helpers are mainly used for ports that receive [Flat Streams](#f
 hasDataStream checks similarily to [`hasStream`](#has-stream), however, when using `data: true` on the port and allowing [bracketForwarding](#bracket-forwarding) to do things behind the scenes, it has a different way of checking.
 
 <div class="note">
-hasDataStream will only work if the port `data` property is `true`.
+hasDataStream will only work if the port <pre>data</pre> property is <pre>true</pre>.
 </div>
 
 ## getDataStream <a id="get-data-stream"></a>
@@ -593,7 +589,7 @@ exports.getComponent = ->
 The `ordered` component option that makes the component maintain the order between `input` and `output` regardless of streams. (_default is `false`_)
 
 <div class="note">
-By default, component outport is ordered when using [`output.send`](#sending).
+By default, component outport is ordered when using <a href="#sending">output.send</a>.
 </div>
 
 For example, a synchronous `KnexDbSelect` component that outputs rowsets in the same order it gets queries, regardless of what time they take.
@@ -618,7 +614,7 @@ What `autoOrdering` does is automatically turns `ordered` on when it sees a stre
 If you need to do something advanced and the [Get](#Get) and [Stream](#Stream) helpers cannot do what you need, you can read information right from the buffer. To do that easily, there are `input.buffer` helpers.
 
 <div class="note">
-When you manually read from the buffer, it is not reset automatically, so you have to manually change the buffer when you are [finished processing and are done](#Done).
+When you manually read from the buffer, it is not reset automatically, so you have to manually change the buffer when you are <a href="done">finished processing and are done</a>.
 </div>
 
 To get the current buffer:
