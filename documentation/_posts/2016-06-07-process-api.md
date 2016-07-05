@@ -424,7 +424,8 @@ An example of bracket forwarding can be found in
 # <a id="stream-helpers"></a>Stream Helpers
 
 ## hasStream <a id="has-stream"></a>
-will check if it has the [full stream](#full-stream)
+Will check if an input port has the full stream. A full stream is all
+the IPs surrounded by open/close brackets, as [in this example](#full-stream).
 
 ```coffeescript
 input.hasStream portname
@@ -437,7 +438,8 @@ input.hasStream 'eh', 'canada'
 ```
 
 ## getStream <a id="get-stream"></a>
-will get the [full stream](#full-stream), then reset the [buffer](#buffer) state for that port.
+Will get the [full stream](#full-stream) and then reset the
+[buffer](#buffer) state for that port.
 
 ```coffeescript
 stream = input.getStream portname
@@ -449,13 +451,19 @@ It can also take multiple port names as arguments:
 [eh, canada] = input.getStream 'eh', 'canada'
 ```
 
-For an example, see [DetermineEmotion](https://github.com/aretecode/canadianness/blob/master/components/DetermineEmotion.coffee)
+For an example of how to use streams,
+see [DetermineEmotion](https://github.com/aretecode/canadianness/blob/master/components/DetermineEmotion.coffee) component.
 
 --------
 # <a id="data-stream-helpers"></a>Data Stream Helpers
 
-Data Stream helpers are available so a component can receive a full stream, yet only have to deal with only the [data](/documentation/information-packets/#data) and let [bracketForwarding](#bracket-forwarding) deal with the [brackets](/documentation/information-packets/#open-bracket).
-The data stream helpers are mainly used for ports that receive [Flat Streams](#flat-streams).
+Data Stream helpers are available so a component can receive a full stream,
+yet only have to deal with only the
+[data](/documentation/information-packets/#data) IPs and let
+[bracketForwarding](#bracket-forwarding) option deal with the
+[brackets](/documentation/information-packets/#open-bracket).
+The data stream helpers are mainly used for ports that receive
+[Flat Streams](#flat-streams).
 
 ## hasDataStream <a id="has-data-stream"></a>
 
@@ -464,7 +472,7 @@ hasDataStream checks similarily to [hasStream](#has-stream), however, when using
 [hasStream](#has-stream) checks if every openBracket has a closeBracket. But when forwardBrackets is enabled for a port, IPs that are not data are removed from the buffer, so there has to be a separate value to track the IPs that come in that are not data. Additionally, when using forwardBrackets, process function is triggered _before_ the last `closeBracket`, so using `data: true` changes it to be triggered _after_.
 
 <div class="note">
-<code>hasDataStream</code> will only work if the port <pre>data</pre> property is <pre>true</pre>.
+<code>hasDataStream</code> will only work if the port <code>data</code> property is <code>true</code>.
 </div>
 
 ## getDataStream <a id="get-data-stream"></a>
@@ -492,9 +500,11 @@ c.process (input, output) ->
 ```
 
 ## Flat Streams <a id="flat-streams"></a>
-[Data Streams](#data-stream-helpers) using the [hasDataStream](#has-data-stream) are usually only beneficial using [flat streams](#flat-streams).
-
-This is an example flat-stream, there are no nested sub-streams:
+[Data Streams](#data-stream-helpers) using the
+[hasDataStream](#has-data-stream) are usually only beneficial using
+[flat streams](#flat-streams). A flat stream has only one pair of
+open/close brackets, in other words there are no nested no sub-streams,
+like in the following example:
 
 ```md
 1) openBracket, $outtermost
@@ -504,24 +514,26 @@ This is an example flat-stream, there are no nested sub-streams:
 5) closeBracket, $outtermost
 ```
 
-The following is a _non flat stream_ because the data has sub-streams. When input comes in, sometimes packets are wrapped in sub-streams. For example (after the comma is the data in the packet):
+The following is a _non flat stream_ because the data has sub-streams.
+When input comes in, sometimes packets are wrapped in sub-streams.
+For example (after the comma is the data in the packet):
 
 ```md
 1) openBracket, $outtermost
 
-2) openBracket, $sub-stream-a
-3) data, 'eh'
-4) closeBracket, $sub-stream-a
+  2) openBracket, $sub-stream-a
+  3) data, 'eh'
+  4) closeBracket, $sub-stream-a
 
-5) openBracket, $sub-stream-b
-6) data, 'canada'
-7) data, 'igloo'
-8) closeBracket, $sub-stream-b
+  5) openBracket, $sub-stream-b
+  6) data, 'canada'
+  7) data, 'igloo'
+  8) closeBracket, $sub-stream-b
 
 9) closeBracket, $outtermost
 ```
 
-If using this example sub-stream with dataStream helpers using this example component:
+If using this example sub-stream with Data Stream helpers using this example component:
 
 ```coffeescript
 exports.getComponent = ->
@@ -551,7 +563,6 @@ The resulting output stream would have lost the sub-stream brackets:
 4) data, 'igloo eh!'
 5) closeBracket, $outtermost
 ```
-
 
 See [noflo-packets/Compact](https://raw.githubusercontent.com/aretecode/noflo-packets/549b67f9e500a958e0283f9d4b8308b43aac66d7/components/Compact.coffee) for an example using [hasDataStream](#has-data-stream) and [getDataStream](#get-data-stream).
 
