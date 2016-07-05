@@ -8,10 +8,37 @@ weight: 6
 
 The main idea behind process api is having all [port events](/documentation/information-packets/#type) come into one place, and all of the [output](#sending)s sent out from the same place.
 
+First of all let's see what a component defined using Process API looks like:
+
+```coffeescript
+exports.getComponent = ->
+  new noflo.Component
+    description: "Forward received data"
+    inPorts:
+      in:
+        datatype: 'all'
+        description: 'An input port'
+    outPorts:
+      out:
+        datatype: 'all'
+        description: 'An output port'
+    process: (input, output) ->
+      return unless input.has 'in'
+      data = input.getData 'in'
+      output.send data
+      output.done()
+```
+
+Note the `process: (input, output) ->`, that's the main method on
+Process API and gives its name. The `input` is a reference to all
+incoming IPs to the component and `output` is a reference to all
+outgoing IPs from the component.
+
 The way the process api works is the async process function gets called for each event. If `done` does not get called, the process function will getting called, and the IPs that are passed to it keep getting appended to the buffer.
 
 <div class="note">
-component.process returns instance of component
+The <code>component.process</code> returns an instance of component, so you don't have to
+return it on your component definition.
 </div>
 
 -----------------------------
@@ -41,8 +68,6 @@ component.process returns instance of component
 
 ----------
 
-
-
 # <a id="component-states"></a> Component States
 
 1) Components _start_
@@ -54,19 +79,27 @@ component.process returns instance of component
 
 ## <a id="preconditions"></a> Preconditions
 
-check if it has a packet:
+Given that `input` represents all the input received by a component, it is
+common to check for some preconditions before _firing_ a component.
+
+A common operation is to check if `input` has a packet arriving at some port:
 
 ```coffeescript
 input.has 'portname'
 ```
 
-using multiple arguments will check they all have packets:
+Using `has` with multiple arguments will check if all those inports have packets:
 
 ```coffeescript
 input.has 'portname', 'secondportname'
 ```
 
-one thing to note about input.has is that it will check for any packet type (openBracket, data, closeBracket) so when we just want the data for example, we can filter the data using a callback. `input.has` can be given a callback argument that can check any IP attributes to answer if the IP matches the custom requirements or not.
+An important detail to note about `input.has` is that it will check for any packet type
+(i.e. `openBracket`, `data`, `closeBracket`). In this context, `input.has` can be given
+a callback argument that
+can check any IP attributes to answer if the IP matches the custom requirements or not.
+For example, if someone wants only `data` IPs, it is possible to filter them
+using the callback:
 
 ```coffeescript
 hasHoldData = input.has 'hold', (ip) -> ip.type is 'data'
@@ -81,7 +114,8 @@ Once a component has passed the preconditions, it begins processing. Processing 
 ## <a name="getting"></a>Receiving
 
 ### Get <a name="get"></a>
-`input.get` will get the first IP from the [buffer](#buffer) of that port.
+When someone wants to receive data in a component, `input.get` will get the first
+IP from the [buffer](#buffer) of that port.
 
 For example, if the incoming packet flow on an `in` inPort is:
 ```md
@@ -90,10 +124,14 @@ For example, if the incoming packet flow on an `in` inPort is:
 3) closeBracket
 ```
 
-If `input.get 'in'` is called, first it will receive the `openBracket`.
-If called again, it will receive `data`, and then again after that would receive `closeBracket.
+If `input.get 'in'` is called, first it will receive the `openBracket`
+(remember that `openBracket` is also an IP).
+If called again, it will receive `data`, and then again after that, would
+receive `closeBracket`.
 
-Since it removes it from the buffer each time, you can repeatedly call it until you have what you need, for example:
+Since `input.get` removes an IP from the buffer each time, you can repeatedly
+call it until you have what you need. For example, if you want to collect all
+`data` IPs:
 
 ```coffeescript
 data = input.get 'in'
@@ -102,55 +140,80 @@ until data.type is 'data'
 ```
 
 ### GetData <a name="get-data"></a>
-`input.getData` is a shortcut for `input.get(portname).data`
+The `input.getData portname` is a shortcut for `input.get(portname).data`.
 
-If the port name is not passed in as an argument, it will try to retrieve from the `in` In Port. Meaning, `input.getData` is the same as `input.getData 'in'`.
+If the port name is not passed in as an argument, it will try to retrieve from
+the `in` inport. Meaning, `input.getData()` is the same as `input.getData 'in'`.
 
 <div class="note">
-when you <pre>input.get|getData</pre> from a <pre>control</pre> port, it does not reset the <pre>control</pre> ports buffer because the data is meant to persist until new data is sent to that <pre>control</pre> port. <pre>control</pre> ports also only accept <pre>data</pre> ips. If it is sent bracket <pre>IP</pre>s, they will be dropped silently.
+when you <code>input.get|getData</code> from a <code>control</code> port, it does not reset the <code>control</code> ports buffer because the data is meant to persist until new data is sent to that <code>control</code> port. <code>control</code> ports also only accept <code>data</code> ips. If it is sent bracket <code>IP</code>s, they will be dropped silently.
 </div>
 
-`input.getData` will accept port(s) as the parameter.
+As said, `input.getData` will accept port name(s) as the parameter.
 Passing in one port will give the data:
 
 ```coffeescript
 data = input.getData portname
 ```
 
-Passing in multiple ports will give an array of the data (using [destructuring](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)):
+Passing in multiple port names will give an array of the data (using [destructuring](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)):
 
 ```coffeescript
 [canada, eh] = input.getData 'canada', 'eh'
 ```
 
 <div class="note">
-using <pre>input.get</pre> and <pre>input.getData</pre> will remove the item retreived using it from the buffer.
+using <code>input.get</code> and <code>input.getData</code> will remove the item retrieved using it from the buffer.
 </div>
 
 ## <a name="sending"></a>Sending
 
-If you're taking something and `send`ing multiple [IPs](/information-packets), you should make them a Stream, meaning it should be wrapped with an `openBracket` and `closeBracket`:
+Considere `output` as the representation of all data sent by the component.
+If you're taking something and `send`ing multiple [IPs](/information-packets),
+you should make them a `Stream`, meaning it should be wrapped with an
+`openBracket` and an `closeBracket`:
 
 ```coffeescript
 output.send new noflo.IP 'openBracket'
+
 for data in ['eh', 'igloo']
   output.send out: data
+
 output.send new noflo.IP 'closeBracket'
 output.done()
 ```
 
-If you're just sending one packet out of one port, it is usually best to use the shortcut for `output.send` and `output.done`, `output.sendDone`:
+If you're just sending one packet out of one port, it is usually best to use
+`output.sendDone` which is a shortcut for `output.send` + `output.done`:
 
 ```coffeescript
 output.sendDone out: 'data'
 ```
 
-Sending to multiple ports at a time using an output map, and error if there is an error:
+Which is the same as:
+
+```coffeescript
+output.send out: 'data'
+output.done()
+```
+
+It is also possible to send to multiple ports at a time using an _output map_
+like:
+
+```coffeescript
+output.sendDone
+  first: 'foo'
+  second: 'bar'
+```
+
+The following is an example of a component that sends to multiplor ports at a
+time or error if there is an error:
 
 ```coffeescript
 exports.getComponent = ->
   c = new noflo.Component
-    description: 'Take in data on 1 inport, repeat that data out a port and send other data out of another'
+    description: 'Take in data on 1 inport, repeat that data out a port
+      and send other data out of another'
     inPorts:
       eh:
         datatype: 'string'
@@ -205,62 +268,60 @@ exports.getComponent = ->
     output.sendDone out: new noflo.IP('data', data, scope: 'example-scope')
 ```
 
-To see more usage of sending, including using streams, check out [writing your own projects guide component, FindEhs](/projects/find-ehs)
+To see more usage of sending, including using streams,
+check out [writing your own projects guide component, FindEhs](/projects/find-ehs).
 
 ----------------------------------------
 ## <a name="done">Done</a>
 
-When you are done processing your data, call `output.done()` (or `output.sendDone` if it makes sense for how you're using it.)
+When you are done processing your data, call `output.done()`
+(or `output.sendDone` if it makes sense for how you're using it.)
 
 <div class="note">
-An Error can be send to <pre>output.sendDone</pre> or <pre>output.done</pre> which will send the Error to the <pre>error</pre> port. If there is not an <pre>error</pre> port defined, it will propogate back up, the same happens if you just throw an Error. <pre>output.sendDone new Error('we have a problem')</pre> In the future, it may emit a proccesserror.
+An <code>Error</code> can be send to <code>output.sendDone</code> or
+<code>output.done</code> which
+will send the <code>Error</code> to the <code>error</code> port.
+If there is not an <code>error</code>
+port defined, it will propogate back up. The same happens if you just
+throw an <code>Error</code>.
+
+<pre><code>output.sendDone new Error('we have a problem')</code></pre>
+
+In the future, it may emit a proccesserror.
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ----------------------------------------
 
-
 # <a name="Brackets"></a>Brackets
-Brackets are [Information Packets](/documentation/information-packets/) used to group things. Read more about them in [Information Packets Types](/documentation/information-packets/#type).
+Brackets are [Information Packets](/documentation/information-packets/) used to
+group things. Read more about their different types in
+[Information Packets Types](/documentation/information-packets/#type).
 
 ## <a name="BracketForwarding"></a>BracketForwarding
 [animation]()
 
 <div class="note">
-Brackets are automatically forwarded from 'in' inPort to outPorts 'out' and 'error' (if those ports exist).
+Brackets are automatically forwarded from <code>in</code> inport to
+outports <code>out</code> and <code>error</code> (if those ports exist).
 </div>
 
-Bracket forwarding is a way to pass on brackets so that you don't have to deal with brackets coming from that in port in the process function.
+Bracket forwarding is a way to pass on brackets so that you don't have to
+deal with brackets coming from that inport in the process function.
 
-If an inport receives an `openBracket`, `data`, and `closeBracket` and you are using `bracketForwarding`, you can get the `data`, process it and send [IPs](/information-packets) out, and what you send out will be wrapped in the `openBracket` and `closeBracket`.
+If an inport receives an `openBracket`, `data`, and `closeBracket`
+and you are using the `bracketForwarding: true` option, you can get the
+`data`, process it and send [IPs](/information-packets) out. What you
+send out will be wrapped in the `openBracket` and `closeBracket`.
 
-For example, [IPs](/information-packets) coming into an `in` port:
+For example, given some [IPs](/information-packets) coming into an `in` port:
 
 ```md
-  1) openBracket ('name')
-  2) data
-  3) closeBracket ('name')
+1) openBracket ('name')
+2) data
+3) closeBracket ('name')
 ```
 
-The component handling the [IPs](/information-packets):
+and the component handling the [IPs](/information-packets):
 
 ```coffeescript
 exports.getComponent = ->
@@ -280,24 +341,22 @@ exports.getComponent = ->
       output.done()
 ```
 
-A socket listening to the `canada` outPort would receive:
+a socket listening to the `canada` outport would receive:
 
 ```md
-  1) openBracket ('name')
-  2) 'one'
-  2) 'two'
-  3) closeBracket ('name')
+1) openBracket ('name')
+2) 'one'
+2) 'two'
+3) closeBracket ('name')
 ```
 
-When sending brackets as a group, the `openBracket` and `closeBracket` should contain the same data.
+When sending brackets as a group, the `openBracket` and `closeBracket`
+should contain the same data.
 
-<div class="note">
 Control ports are not wrapped with brackets, they only deal with data.
-</div>
 
 A more advanced example using sub-streams (should be avoided if possible because they add unnecessary complexity):
 
-sending the stream:
 ```md
 1) openBracket, '$outtermost'
 
@@ -313,7 +372,7 @@ sending the stream:
 9) openBracket, '$outtermost'
 ```
 
-using the component:
+and using the following component to handle the stream:
 
 ```coffeescript
 exports.getComponent = ->
@@ -334,7 +393,7 @@ exports.getComponent = ->
       output.done()
 ```
 
-output stream would be:
+the output stream would be:
 
 ```md
 1) openBracket, '$outtermost'
@@ -354,14 +413,16 @@ output stream would be:
 @TODO:
 What's happening here is forwardBrackets is
 
-An example of bracket forwarding can be found in [Loading Components inline](/documentation/testing/#loading-components-inline)
+An example of bracket forwarding can be found in
+[Loading Components inline](/documentation/testing/#loading-components-inline).
 
 -----------------------------------------------------
 
 # <a id="stream-helpers"></a>Stream Helpers
 
 ## hasStream <a id="has-stream"></a>
-will check if it has the [full stream](#full-stream)
+Will check if an input port has the full stream. A full stream is all
+the IPs surrounded by open/close brackets, as [in this example](#full-stream).
 
 ```coffeescript
 input.hasStream portname
@@ -374,7 +435,8 @@ input.hasStream 'eh', 'canada'
 ```
 
 ## getStream <a id="get-stream"></a>
-will get the [full stream](#full-stream), then reset the [buffer](#buffer) state for that port.
+Will get the [full stream](#full-stream) and then reset the
+[buffer](#buffer) state for that port.
 
 ```coffeescript
 stream = input.getStream portname
@@ -386,13 +448,19 @@ It can also take multiple port names as arguments:
 [eh, canada] = input.getStream 'eh', 'canada'
 ```
 
-For an example, see [DetermineEmotion](https://github.com/aretecode/canadianness/blob/master/components/DetermineEmotion.coffee)
+For an example of how to use streams,
+see [DetermineEmotion](https://github.com/aretecode/canadianness/blob/master/components/DetermineEmotion.coffee) component.
 
 --------
 # <a id="data-stream-helpers"></a>Data Stream Helpers
 
-Data Stream helpers are available so a component can receive a full stream, yet only have to deal with only the [data](/documentation/information-packets/#data) and let [bracketForwarding](#bracket-forwarding) deal with the [brackets](/documentation/information-packets/#open-bracket).
-The data stream helpers are mainly used for ports that receive [Flat Streams](#flat-streams).
+Data Stream helpers are available so a component can receive a full stream,
+yet only have to deal with only the
+[data](/documentation/information-packets/#data) IPs and let
+[bracketForwarding](#bracket-forwarding) option deal with the
+[brackets](/documentation/information-packets/#open-bracket).
+The data stream helpers are mainly used for ports that receive
+[Flat Streams](#flat-streams).
 
 ## hasDataStream <a id="has-data-stream"></a>
 
@@ -401,7 +469,7 @@ hasDataStream checks similarily to [hasStream](#has-stream), however, when using
 [hasStream](#has-stream) checks if every openBracket has a closeBracket. But when forwardBrackets is enabled for a port, IPs that are not data are removed from the buffer, so there has to be a separate value to track the IPs that come in that are not data. Additionally, when using forwardBrackets, process function is triggered _before_ the last `closeBracket`, so using `data: true` changes it to be triggered _after_.
 
 <div class="note">
-<code>hasDataStream</code> will only work if the port <pre>data</pre> property is <pre>true</pre>.
+<code>hasDataStream</code> will only work if the port <code>data</code> property is <code>true</code>.
 </div>
 
 ## getDataStream <a id="get-data-stream"></a>
@@ -429,9 +497,11 @@ c.process (input, output) ->
 ```
 
 ## Flat Streams <a id="flat-streams"></a>
-[Data Streams](#data-stream-helpers) using the [hasDataStream](#has-data-stream) are usually only beneficial using [flat streams](#flat-streams).
-
-This is an example flat-stream, there are no nested sub-streams:
+[Data Streams](#data-stream-helpers) using the
+[hasDataStream](#has-data-stream) are usually only beneficial using
+[flat streams](#flat-streams). A flat stream has only one pair of
+open/close brackets, in other words there are no nested no sub-streams,
+like in the following example:
 
 ```md
 1) openBracket, $outtermost
@@ -441,24 +511,26 @@ This is an example flat-stream, there are no nested sub-streams:
 5) closeBracket, $outtermost
 ```
 
-The following is a _non flat stream_ because the data has sub-streams. When input comes in, sometimes packets are wrapped in sub-streams. For example (after the comma is the data in the packet):
+The following is a _non flat stream_ because the data has sub-streams.
+When input comes in, sometimes packets are wrapped in sub-streams.
+For example (after the comma is the data in the packet):
 
 ```md
 1) openBracket, $outtermost
 
-2) openBracket, $sub-stream-a
-3) data, 'eh'
-4) closeBracket, $sub-stream-a
+  2) openBracket, $sub-stream-a
+  3) data, 'eh'
+  4) closeBracket, $sub-stream-a
 
-5) openBracket, $sub-stream-b
-6) data, 'canada'
-7) data, 'igloo'
-8) closeBracket, $sub-stream-b
+  5) openBracket, $sub-stream-b
+  6) data, 'canada'
+  7) data, 'igloo'
+  8) closeBracket, $sub-stream-b
 
 9) closeBracket, $outtermost
 ```
 
-If using this example sub-stream with dataStream helpers using this example component:
+If using this example sub-stream with Data Stream helpers using this example component:
 
 ```coffeescript
 exports.getComponent = ->
@@ -489,31 +561,26 @@ The resulting output stream would have lost the sub-stream brackets:
 5) closeBracket, $outtermost
 ```
 
-
 See [noflo-packets/Compact](https://raw.githubusercontent.com/aretecode/noflo-packets/549b67f9e500a958e0283f9d4b8308b43aac66d7/components/Compact.coffee) for an example using [hasDataStream](#has-data-stream) and [getDataStream](#get-data-stream).
 
 -----------------------------------------------------
 # <a id="firing-patterns"></a> Firing Patterns
 
-There are two standard firing patterns
+There are two standard firing patterns. First one is the _full stream_  where
+data is being sent to a port in order, surrounded or not by
+`openBracket` or `closeBracket`:
 
-This is data being sent to a port in order:
 ```
-1) openBracket
+1) openBracket (optional)
 2) data
 3) data
-4) closeBracket
+4) closeBracket (optional)
 ```
 
-sometimes, there is no `openBracket` or `closeBracket`, and there is only `data`:
-
-```
-1) data
-```
-
+The second one is _per packet_ where each `data` IP is processed. Both
+patterns and examples of their use are shown in the following sections.
 
 ## <a id="full-stream"></a> Full Stream
-
 
 ```md
 # get everything from here...
@@ -553,7 +620,6 @@ exports.getComponent = ->
       output.sendDone canada: stream
 ```
 
-
 ## <a id="per-packet"></a>Per Packet
 ```md
 1) openBracket # don't get this
@@ -586,21 +652,21 @@ exports.getComponent = ->
       output.send canada: data
 ```
 
-
-
 ----------------------------------------
 # Ordering <a id="ordering"></a>
 
 ## Ordered <a id="ordered"></a>
-The `ordered` component option that makes the component maintain the order between `input` and `output` regardless of streams. (_default is `false`_)
+The `ordered` component option that makes the component maintain the
+order between `input` and `output` regardless of streams. (_default is `false`_)
 
 <div class="note">
 By default, component outport is ordered when using <a href="#sending">output.send</a>.
 </div>
 
-For example, a synchronous `KnexDbSelect` component that outputs rowsets in the same order it gets queries, regardless of what time they take.
+For example, a synchronous `KnexDbSelect` component that outputs rowsets
+in the same order it gets queries, regardless of what time they take.
 
-`ordered` will not work unless `autoOrdering` is disabled.
+The option `ordered` will not work unless `autoOrdering` is disabled.
 
 ## AutoOrdering <a id="auto-ordering"></a>
 The `autoOrdering` component option groups the output sending. (_default is `true`_)
