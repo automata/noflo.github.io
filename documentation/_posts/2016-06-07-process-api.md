@@ -42,8 +42,6 @@ return it on your component definition.
 
 ----------
 
-
-
 # <a id="component-states"></a> Component States
 
 1) Components _start_
@@ -55,19 +53,27 @@ return it on your component definition.
 
 ## <a id="preconditions"></a> Preconditions
 
-check if it has a packet:
+Given that `input` represents all the input received by a component, it is
+common to check for some preconditions before _firing_ a component.
+
+A common operation is to check if `input` has a packet arriving at some port:
 
 ```coffeescript
 input.has 'portname'
 ```
 
-using multiple arguments will check they all have packets:
+Using `has` with multiple arguments will check if all those inports have packets:
 
 ```coffeescript
 input.has 'portname', 'secondportname'
 ```
 
-one thing to note about input.has is that it will check for any packet type (openBracket, data, closeBracket) so when we just want the data for example, we can filter the data using a callback. `input.has` can be given a callback argument that can check any IP attributes to answer if the IP matches the custom requirements or not.
+An important detail to note about `input.has` is that it will check for any packet type
+(i.e. `openBracket`, `data`, `closeBracket`). In this context, `input.has` can be given
+a callback argument that
+can check any IP attributes to answer if the IP matches the custom requirements or not.
+For example, if someone wants only `data` IPs, it is possible to filter them
+using the callback:
 
 ```coffeescript
 hasHoldData = input.has 'hold', (ip) -> ip.type is 'data'
