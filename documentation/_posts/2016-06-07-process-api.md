@@ -569,35 +569,21 @@ See [noflo-packets/Compact](https://raw.githubusercontent.com/aretecode/noflo-pa
 -----------------------------------------------------
 # <a id="firing-patterns"></a> Firing Patterns
 
-There are two standard firing patterns
+There are two standard firing patterns. First one is the _full stream_  where
+data is being sent to a port in order, surrounded or not by
+`openBracket` or `closeBracket`:
 
-<!-- OK, I'm a bit confused... so there're two patterns:
-
-  1. full stream: < data, data, data, ... >
-  2. per packet: < data, data, data > (ignoring all open/close brackets)
-
-  Is that right? Or do we have another pattern:
-
-  3. per packet with no open/close brackets: data, data, data, ...
--->
-
-This is data being sent to a port in order:
 ```
-1) openBracket
+1) openBracket (optional)
 2) data
 3) data
-4) closeBracket
+4) closeBracket (optional)
 ```
 
-sometimes, there is no `openBracket` or `closeBracket`, and there is only `data`:
-
-```
-1) data
-```
-
+The second one is _per packet_ where each `data` IP is processed. Both
+patterns and examples of their use are shown in the following sections.
 
 ## <a id="full-stream"></a> Full Stream
-
 
 ```md
 # get everything from here...
@@ -636,7 +622,6 @@ exports.getComponent = ->
       # ...do stuff with the stream...
       output.sendDone canada: stream
 ```
-
 
 ## <a id="per-packet"></a>Per Packet
 ```md
