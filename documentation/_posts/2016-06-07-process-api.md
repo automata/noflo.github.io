@@ -670,21 +670,21 @@ exports.getComponent = ->
       output.send canada: data
 ```
 
-
-
 ----------------------------------------
 # Ordering <a id="ordering"></a>
 
 ## Ordered <a id="ordered"></a>
-The `ordered` component option that makes the component maintain the order between `input` and `output` regardless of streams. (_default is `false`_)
+The `ordered` component option that makes the component maintain the
+order between `input` and `output` regardless of streams. (_default is `false`_)
 
 <div class="note">
 By default, component outport is ordered when using <a href="#sending">output.send</a>.
 </div>
 
-For example, a synchronous `KnexDbSelect` component that outputs rowsets in the same order it gets queries, regardless of what time they take.
+For example, a synchronous `KnexDbSelect` component that outputs rowsets
+in the same order it gets queries, regardless of what time they take.
 
-`ordered` will not work unless `autoOrdering` is disabled.
+The option `ordered` will not work unless `autoOrdering` is disabled.
 
 ## AutoOrdering <a id="auto-ordering"></a>
 The `autoOrdering` component option groups the output sending. (_default is `true`_)
