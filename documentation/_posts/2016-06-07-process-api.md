@@ -8,6 +8,32 @@ weight: 6
 
 The main idea behind process api is having all [port events](/documentation/information-packets/#type) come into one place, and all of the [output](#sending)s sent out from the same place.
 
+First of all let's see what a component defined using Process API looks like:
+
+```coffeescript
+exports.getComponent = ->
+  new noflo.Component
+    description: "Forward received data"
+    inPorts:
+      in:
+        datatype: 'all'
+        description: 'An input port'
+    outPorts:
+      out:
+        datatype: 'all'
+        description: 'An output port'
+    process: (input, output) ->
+      return unless input.has 'in'
+      data = input.getData 'in'
+      output.send data
+      output.done()
+```
+
+Note the `process: (input, output) ->`, that's the main method on
+Process API and gives its name. The `input` is a reference to all
+incoming IPs to the component and `output` is a reference to all
+outgoing IPs from the component.
+
 The way the process api works is the async process function gets called for each event. If `done` does not get called, the process function will getting called, and the IPs that are passed to it keep getting appended to the buffer.
 
 <div class="note">
@@ -142,23 +168,37 @@ using <pre>input.get</pre> and <pre>input.getData</pre> will remove the item ret
 
 ## <a name="sending"></a>Sending
 
-If you're taking something and `send`ing multiple [IPs](/information-packets), you should make them a Stream, meaning it should be wrapped with an `openBracket` and `closeBracket`:
+Considere `output` as the representation of all data sent by the component.
+If you're taking something and `send`ing multiple [IPs](/information-packets),
+you should make them a `Stream`, meaning it should be wrapped with an
+`openBracket` and an `closeBracket`:
 
 ```coffeescript
 output.send new noflo.IP 'openBracket'
+
 for data in ['eh', 'igloo']
   output.send out: data
+
 output.send new noflo.IP 'closeBracket'
 output.done()
 ```
 
-If you're just sending one packet out of one port, it is usually best to use the shortcut for `output.send` and `output.done`, `output.sendDone`:
+If you're just sending one packet out of one port, it is usually best to use
+`output.sendDone` which is a shortcut for `output.send` + `output.done`:
 
 ```coffeescript
 output.sendDone out: 'data'
 ```
 
-Sending to multiple ports at a time using an output map, and error if there is an error:
+Which is the same as:
+
+```coffeescript
+output.send out: 'data'
+output.done()
+```
+
+It is possible to send to multiple ports at a time using an _output map_,
+and error if there is an error:
 
 ```coffeescript
 exports.getComponent = ->
