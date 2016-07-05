@@ -250,9 +250,6 @@ There are generally 2 cases when you’d want to send `noflo.IP` explicitly:
 - When sending `openBracket` or `closeBracket`
 - When specifying IP metadata, such as `scope`, `index` or application-specific metadata.
 
-<!-- I didn't understand why do I need this? What's the bennefit of sending IP
-instead of some data packet? -->
-
 ```coffeescript
 exports.getComponent = ->
   c = new noflo.Component
