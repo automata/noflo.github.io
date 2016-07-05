@@ -11,7 +11,7 @@ The main idea behind process api is having all [port events](/documentation/info
 The way the process api works is the async process function gets called for each event. If `done` does not get called, the process function will getting called, and the IPs that are passed to it keep getting appended to the buffer.
 
 <div class="note">
-Tip: <code>component.process</code> returns an instance of component, so you don't have to
+The <code>component.process</code> returns an instance of component, so you don't have to
 return it on your component definition.
 </div>
 
@@ -88,7 +88,8 @@ Once a component has passed the preconditions, it begins processing. Processing 
 ## <a name="getting"></a>Receiving
 
 ### Get <a name="get"></a>
-`input.get` will get the first IP from the [buffer](#buffer) of that port.
+When someone wants to receive data in a component, `input.get` will get the first
+IP from the [buffer](#buffer) of that port.
 
 For example, if the incoming packet flow on an `in` inPort is:
 ```md
@@ -97,10 +98,14 @@ For example, if the incoming packet flow on an `in` inPort is:
 3) closeBracket
 ```
 
-If `input.get 'in'` is called, first it will receive the `openBracket`.
-If called again, it will receive `data`, and then again after that would receive `closeBracket.
+If `input.get 'in'` is called, first it will receive the `openBracket`
+(remember that `openBracket` is also an IP).
+If called again, it will receive `data`, and then again after that, would
+receive `closeBracket`.
 
-Since it removes it from the buffer each time, you can repeatedly call it until you have what you need, for example:
+Since `input.get` removes an IP from the buffer each time, you can repeatedly
+call it until you have what you need. For example, if you want to collect all
+`data` IPs:
 
 ```coffeescript
 data = input.get 'in'
@@ -109,22 +114,23 @@ until data.type is 'data'
 ```
 
 ### GetData <a name="get-data"></a>
-`input.getData` is a shortcut for `input.get(portname).data`
+The `input.getData portname` is a shortcut for `input.get(portname).data`.
 
-If the port name is not passed in as an argument, it will try to retrieve from the `in` In Port. Meaning, `input.getData` is the same as `input.getData 'in'`.
+If the port name is not passed in as an argument, it will try to retrieve from
+the `in` inport. Meaning, `input.getData()` is the same as `input.getData 'in'`.
 
 <div class="note">
 when you <pre>input.get|getData</pre> from a <pre>control</pre> port, it does not reset the <pre>control</pre> ports buffer because the data is meant to persist until new data is sent to that <pre>control</pre> port. <pre>control</pre> ports also only accept <pre>data</pre> ips. If it is sent bracket <pre>IP</pre>s, they will be dropped silently.
 </div>
 
-`input.getData` will accept port(s) as the parameter.
+As said, `input.getData` will accept port name(s) as the parameter.
 Passing in one port will give the data:
 
 ```coffeescript
 data = input.getData portname
 ```
 
-Passing in multiple ports will give an array of the data (using [destructuring](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)):
+Passing in multiple port names will give an array of the data (using [destructuring](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)):
 
 ```coffeescript
 [canada, eh] = input.getData 'canada', 'eh'
