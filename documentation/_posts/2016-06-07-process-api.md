@@ -197,13 +197,23 @@ output.send out: 'data'
 output.done()
 ```
 
-It is possible to send to multiple ports at a time using an _output map_,
-and error if there is an error:
+It is also possible to send to multiple ports at a time using an _output map_
+like:
+
+```coffeescript
+output.sendDone
+  first: 'foo'
+  second: 'bar'
+```
+
+The following is an example of a component that sends to multiplor ports at a
+time or error if there is an error:
 
 ```coffeescript
 exports.getComponent = ->
   c = new noflo.Component
-    description: 'Take in data on 1 inport, repeat that data out a port and send other data out of another'
+    description: 'Take in data on 1 inport, repeat that data out a port
+      and send other data out of another'
     inPorts:
       eh:
         datatype: 'string'
@@ -240,6 +250,9 @@ There are generally 2 cases when you’d want to send `noflo.IP` explicitly:
 - When sending `openBracket` or `closeBracket`
 - When specifying IP metadata, such as `scope`, `index` or application-specific metadata.
 
+<!-- I didn't understand why do I need this? What's the bennefit of sending IP
+instead of some data packet? -->
+
 ```coffeescript
 exports.getComponent = ->
   c = new noflo.Component
@@ -258,35 +271,27 @@ exports.getComponent = ->
     output.sendDone out: new noflo.IP('data', data, scope: 'example-scope')
 ```
 
-To see more usage of sending, including using streams, check out [writing your own projects guide component, FindEhs](/projects/find-ehs)
+To see more usage of sending, including using streams,
+check out [writing your own projects guide component, FindEhs](/projects/find-ehs).
 
 ----------------------------------------
 ## <a name="done">Done</a>
 
-When you are done processing your data, call `output.done()` (or `output.sendDone` if it makes sense for how you're using it.)
+When you are done processing your data, call `output.done()`
+(or `output.sendDone` if it makes sense for how you're using it.)
 
 <div class="note">
-An Error can be send to <pre>output.sendDone</pre> or <pre>output.done</pre> which will send the Error to the <pre>error</pre> port. If there is not an <pre>error</pre> port defined, it will propogate back up, the same happens if you just throw an Error. <pre>output.sendDone new Error('we have a problem')</pre> In the future, it may emit a proccesserror.
+An <code>Error</code> can be send to <code>output.sendDone</code> or
+<code>output.done</code> which
+will send the <code>Error</code> to the <code>error</code> port.
+If there is not an <code>error</code>
+port defined, it will propogate back up. The same happens if you just
+throw an <code>Error</code>.
+
+<pre><code>output.sendDone new Error('we have a problem')</code></pre>
+
+In the future, it may emit a proccesserror.
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ----------------------------------------
 
