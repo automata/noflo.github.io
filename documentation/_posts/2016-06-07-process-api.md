@@ -8,8 +8,7 @@ weight: 6
 
 The main idea behind process api is having all [port events](/documentation/information-packets/#type) come into one place, and all of the [output](#sending)s sent out from the same place.
 
-The way the process api works is it gets called for each event.
-If `done` does not get called, the process function will getting called, and the IPs that are passed to it keep getting appended to the buffer.
+The way the process api works is the async process function gets called for each event. If `done` does not get called, the process function will getting called, and the IPs that are passed to it keep getting appended to the buffer.
 
 <div class="note">
 component.process returns instance of component
@@ -44,16 +43,12 @@ component.process returns instance of component
 
 
 
-
-
-
-
-
-
-
-
-
 # <a id="component-states"></a> Component States
+
+1) Components _start_
+2) Components process _preconditions_ are checked
+3) Once Components preconditions are passed, they begin _processing_.
+4) Finally, once Components finish processing and call `output.done`, they are _done_.
 
 ----------------------------------------
 
@@ -80,6 +75,8 @@ hasHoldData = input.has 'hold', (ip) -> ip.type is 'data'
 ----------------------------------------
 
 ## <a name="processing"></a>Processing
+
+Once a component has passed the preconditions, it begins processing. Processing is where you get the data, possibly perform operations on data, and can send IPs out before calling `output.done`.
 
 ## <a name="getting"></a>Receiving
 
@@ -183,12 +180,17 @@ exports.getComponent = ->
       igloo: eh
 ```
 
-Sending [IP](#ip)s
+Sending [IP](/documentation/information-packets)s
+
+There are generally 2 cases when you’d want to send `noflo.IP` explicitly:
+
+- When sending `openBracket` or `closeBracket`
+- When specifying IP metadata, such as `scope`, `index` or application-specific metadata.
 
 ```coffeescript
 exports.getComponent = ->
   c = new noflo.Component
-    description: 'get data on an inport, send out as an IP'
+    description: 'get data on an inport, send out as a specifically scoped IP'
     inPorts:
       in:
         datatype: 'all'
@@ -200,7 +202,7 @@ exports.getComponent = ->
     return unless input.has 'in'
 
     data = input.getData 'in'
-    output.sendDone out: new noflo.IP('data', data)
+    output.sendDone out: new noflo.IP('data', data, scope: 'example-scope')
 ```
 
 To see more usage of sending, including using streams, check out [writing your own projects guide component, FindEhs](/projects/find-ehs)
@@ -293,7 +295,7 @@ When sending brackets as a group, the `openBracket` and `closeBracket` should co
 Control ports are not wrapped with brackets, they only deal with data.
 </div>
 
-A more advanced example using sub-streams (should be avoided if possible):
+A more advanced example using sub-streams (should be avoided if possible because they add unnecessary complexity):
 
 sending the stream:
 ```md
@@ -349,6 +351,8 @@ output stream would be:
 9) openBracket, '$outtermost'
 ```
 
+@TODO:
+What's happening here is forwardBrackets is
 
 An example of bracket forwarding can be found in [Loading Components inline](/documentation/testing/#loading-components-inline)
 
@@ -392,10 +396,12 @@ The data stream helpers are mainly used for ports that receive [Flat Streams](#f
 
 ## hasDataStream <a id="has-data-stream"></a>
 
-hasDataStream checks similarily to [`hasStream`](#has-stream), however, when using `data: true` on the port and allowing [bracketForwarding](#bracket-forwarding) to do things behind the scenes, it has a different way of checking.
+hasDataStream checks similarily to [hasStream](#has-stream), however, when using `data: true` on the port and allowing [bracketForwarding](#bracket-forwarding) to do things behind the scenes, it has a different way of checking.
+
+[hasStream](#has-stream) checks if every openBracket has a closeBracket. But when forwardBrackets is enabled for a port, IPs that are not data are removed from the buffer, so there has to be a separate value to track the IPs that come in that are not data. Additionally, when using forwardBrackets, process function is triggered _before_ the last `closeBracket`, so using `data: true` changes it to be triggered _after_.
 
 <div class="note">
-hasDataStream will only work if the port <pre>data</pre> property is <pre>true</pre>.
+<code>hasDataStream</code> will only work if the port <pre>data</pre> property is <pre>true</pre>.
 </div>
 
 ## getDataStream <a id="get-data-stream"></a>

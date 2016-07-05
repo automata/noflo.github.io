@@ -348,7 +348,7 @@ when the flowtrace has been written, we can copy and paste the location of that 
 ```
 $ flowtrace-show <JSON-TRACE-LOCATION>
 ```
-<img src="/img/flowtrace.png" alt="flowtrace graph"/>
+<img src="{{ site.baseurl }}/img/flowtrace.png" alt="flowtrace graph"/>
 
 
 ## 7) Shorter

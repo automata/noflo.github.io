@@ -10,16 +10,13 @@ weight: 3
 - [Lifecycle](#lifecycle)
 - [SubGraphs](#subgraphs)
 - [Design](#design)
-- [Ports](#ports)
-  - [Data Types](#port-data-types)
-  - [Attributes](#port-attributes)
-  - [Events](#portevents)
 
 [picture](ingredient)
 
 A component is the main ingredient of flow-based programming. Component is a [CommonJS module])(http://requirejs.org/docs/commonjs.html) providing a set of input and output port handlers. These ports are used for connecting components to each other.
 
 [picture](box)
+
 NoFlo processes (the boxes of a flow graph) are instances of a component, with the graph controlling connections between ports of components.
 
 Since version 0.2.0, NoFlo has been able to utilize components shared via NPM packages. [Read the introductory blog post](http://bergie.iki.fi/blog/distributing-noflo-components/) to learn more.
@@ -69,10 +66,6 @@ The `exports.getComponent` function is used by NoFlo to create an instance of th
 
 You can find more examples of components in the [component library](/library/) section of this website.
 
-
-<a id="component-loader"></a>
-### Component Loader @TODO:
-
 <a id="subgraphs"></a>
 ### moved to [Subgraphs](/documentation/graphs/#subgraphs)
 
@@ -111,144 +104,6 @@ When NoFlo is being run, all components used in a NoFlo network (an instantiated
 A running instance of a component in a NoFlo network is called a *process*. Before a process has received data it should be *inert*, merely listening to its input ports. Processes that need to start doing something when a network is started should be triggered to do so by sending them an Initial Information Packet.
 
 
-------------
-<a id="ports"></a>
-# Ports
-
-<a id="port-data-types"></a>
-### Port data types
-
-NoFlo is a flow-based programming environment for JavaScript, and JavaScript utilizes dynamic typing. Because of this, NoFlo component ports don't impose type safety, and the output of any port can be connected to the input of any other port. This means that any type checking or type conversions should be handled inside the components themselves.
-
-To aid users in designing graphs, it is however possible to annotate ports with the data type they expect to receive or transmit. This data type is given as a string value of the `datatype` attribute when adding a port to a component. For example:
-
-```coffeescript
-component.inPorts.add 'in', datatype: 'string'
-component.inPorts.add 'options', datatype: 'object'
-```
-```javascript
-component.inPorts.add('in', { datatype: 'string' });
-component.inPorts.add('options', { datatype: 'object' });
-```
-
-The data types supported by NoFlo include:
-
-* _all_: the port can deal with any data type
-* _bang_: the port doesn't do anything with the contents of a data packet, only with the fact that a packet was sent, so any datatype can be sent to a bang port
-* _string_
-* _boolean_
-* _number_
-* _int_
-* _object_
-* _array_
-* _color_
-* _date_
-* _function_
-* _buffer_
-* _stream_
-
-<a id="port-attributes"></a>
-### Port attributes
-
-There is a set of other attributes a port may have apart from its `datatype`:
-
-* `addressable`: this boolean flag makes turns the port into an _Array port_, giving a particular index for each connection attached to it (_default: `false`_);
-Array ports have a third value on events with the socket index :
-  ```@inPorts.in.on 'data' , (event, payload, index ) -> ... ```
-
-* `cached`: this option makes an output port re-send last emitted value when new connections are established (_default: `false`_);
-* `datatype`: string type name of data the port accepts, see above (_default: `all`_);
-* `description`: provides human-readable description of the port displayed in documentation and in [Flowhub](http://flowhub.io) inspector;
-* `required`: indicates that a connection on the port is required for component's functioning (_default: `false`_);
-* `values`: sets the list of accepted values for the port, if the value received is not in the list an error is thrown (_default: `null`_).
-* `control`: ports can be used to keep whatever the last packet that was sent to it. They only keep data and they silently drop brackets. (_default: `false`_)
-* `triggering`:  this boolean flag is useful to set as `triggering: false` on a `control` port where the data should be stored, but the `process` handler should not be triggered/called when data comes into that port. (_default: `true`_)
-
-Here is how multiple attributes can be declared:
-
-```coffeescript
-component.inPorts.add 'id',
-  datatype: 'int'
-  description: 'Request ID'
-component.inPorts.add 'user',
-  datatype: 'object'
-  description: 'User data'
-```
-```javascript
-component.inPorts.add('id', {
-  datatype: 'int',
-  description: 'Request ID'
-});
-component.inPorts.add('user', {
-  datatype: 'object',
-  description: 'User data'
-});
-```
-
-This can alternatively be done using constructors explicitly:
-
-```coffeescript
-noflo = require 'noflo'
-
-component.inPorts = new noflo.inPorts
-  in:
-    datatype: 'int'
-    description: 'Request ID'
-  user:
-    datatype: 'object'
-    description: 'User data'
-```
-```javascript
-noflo = require('noflo');
-
-component.inPorts = new noflo.inPorts({
-  in: {
-    datatype: 'int',
-    description: 'Request ID'
-  },
-  user: {
-    datatype: 'object',
-    description: 'User data'
-  }
-});
-```
-
-The third way this can be done is passing in the ports as objects to the component constructor.
-
-```coffeescript
-c = new noflo.Component
-  icon: 'gear'
-  inPorts:
-    eh:
-      datatype: 'all'
-      required: true
-  outPorts:
-    canada:
-      datatype: 'object'
-      required: true
-    error:
-      datatype: 'object'
-```
-```javascript
-c = new noflo.Component({
-  icon: 'gear',
-  inPorts: {
-    magic: {
-      datatype: 'all',
-      required: true
-    }
-  },
-  outPorts: {
-    bird: {
-      datatype: 'object',
-      required: true
-    },
-    error: {
-      datatype: 'object'
-    }
-  }
-});
-```
 
 <a id="icons"></a>
 ### Component icons

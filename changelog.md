@@ -334,3 +334,22 @@ WirePattern | Process
 
 /process-api
 - all port stuff events -> change
+
+-----------
+# 2016-07-05
+
+/ports
+- create, move from /components
+- add sockets
+- add sockets animation
+- add sockets sending methods
+
+/process-api
+- flush out intro to process api
+- add components states
+- adding when to use IPs
+- added why not to use sub-streams
+- flush out how data stream hasDataStream checks behind the scenes
+
+# general
+- use site.baseurl for images

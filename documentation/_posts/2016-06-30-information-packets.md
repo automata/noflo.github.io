@@ -186,7 +186,7 @@ c.process (input, output) ->
 
 Concurrency problems in graphs with these graph and these sample components as examples:
 
-<img src="/img/concurrency.png" alt="concurrency example graph"></img>
+<img src="{{ site.baseurl }}/img/concurrency.png" alt="concurrency example graph"></img>
 
 ```md
 1) a packet (named $1) is sent to start
