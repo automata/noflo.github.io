@@ -146,7 +146,7 @@ If the port name is not passed in as an argument, it will try to retrieve from
 the `in` inport. Meaning, `input.getData()` is the same as `input.getData 'in'`.
 
 <div class="note">
-when you <pre>input.get|getData</pre> from a <pre>control</pre> port, it does not reset the <pre>control</pre> ports buffer because the data is meant to persist until new data is sent to that <pre>control</pre> port. <pre>control</pre> ports also only accept <pre>data</pre> ips. If it is sent bracket <pre>IP</pre>s, they will be dropped silently.
+when you <code>input.get|getData</code> from a <code>control</code> port, it does not reset the <code>control</code> ports buffer because the data is meant to persist until new data is sent to that <code>control</code> port. <code>control</code> ports also only accept <code>data</code> ips. If it is sent bracket <code>IP</code>s, they will be dropped silently.
 </div>
 
 As said, `input.getData` will accept port name(s) as the parameter.
@@ -163,7 +163,7 @@ Passing in multiple port names will give an array of the data (using [destructur
 ```
 
 <div class="note">
-using <pre>input.get</pre> and <pre>input.getData</pre> will remove the item retreived using it from the buffer.
+using <code>input.get</code> and <code>input.getData</code> will remove the item retrieved using it from the buffer.
 </div>
 
 ## <a name="sending"></a>Sending
