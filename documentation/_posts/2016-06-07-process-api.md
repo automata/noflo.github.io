@@ -571,6 +571,16 @@ See [noflo-packets/Compact](https://raw.githubusercontent.com/aretecode/noflo-pa
 
 There are two standard firing patterns
 
+<!-- OK, I'm a bit confused... so there're two patterns:
+
+  1. full stream: < data, data, data, ... >
+  2. per packet: < data, data, data > (ignoring all open/close brackets)
+
+  Is that right? Or do we have another pattern:
+
+  3. per packet with no open/close brackets: data, data, data, ...
+-->
+
 This is data being sent to a port in order:
 ```
 1) openBracket
