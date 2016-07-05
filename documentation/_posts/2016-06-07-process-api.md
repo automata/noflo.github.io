@@ -295,30 +295,36 @@ In the future, it may emit a proccesserror.
 
 ----------------------------------------
 
-
 # <a name="Brackets"></a>Brackets
-Brackets are [Information Packets](/documentation/information-packets/) used to group things. Read more about them in [Information Packets Types](/documentation/information-packets/#type).
+Brackets are [Information Packets](/documentation/information-packets/) used to
+group things. Read more about their different types in
+[Information Packets Types](/documentation/information-packets/#type).
 
 ## <a name="BracketForwarding"></a>BracketForwarding
 [animation]()
 
 <div class="note">
-Brackets are automatically forwarded from 'in' inPort to outPorts 'out' and 'error' (if those ports exist).
+Brackets are automatically forwarded from <code>in</code> inport to
+outports <code>out</code> and <code>error</code> (if those ports exist).
 </div>
 
-Bracket forwarding is a way to pass on brackets so that you don't have to deal with brackets coming from that in port in the process function.
+Bracket forwarding is a way to pass on brackets so that you don't have to
+deal with brackets coming from that inport in the process function.
 
-If an inport receives an `openBracket`, `data`, and `closeBracket` and you are using `bracketForwarding`, you can get the `data`, process it and send [IPs](/information-packets) out, and what you send out will be wrapped in the `openBracket` and `closeBracket`.
+If an inport receives an `openBracket`, `data`, and `closeBracket`
+and you are using the `bracketForwarding: true` option, you can get the
+`data`, process it and send [IPs](/information-packets) out. What you
+send out will be wrapped in the `openBracket` and `closeBracket`.
 
-For example, [IPs](/information-packets) coming into an `in` port:
+For example, given some [IPs](/information-packets) coming into an `in` port:
 
 ```md
-  1) openBracket ('name')
-  2) data
-  3) closeBracket ('name')
+1) openBracket ('name')
+2) data
+3) closeBracket ('name')
 ```
 
-The component handling the [IPs](/information-packets):
+and the component handling the [IPs](/information-packets):
 
 ```coffeescript
 exports.getComponent = ->
@@ -338,24 +344,22 @@ exports.getComponent = ->
       output.done()
 ```
 
-A socket listening to the `canada` outPort would receive:
+a socket listening to the `canada` outport would receive:
 
 ```md
-  1) openBracket ('name')
-  2) 'one'
-  2) 'two'
-  3) closeBracket ('name')
+1) openBracket ('name')
+2) 'one'
+2) 'two'
+3) closeBracket ('name')
 ```
 
-When sending brackets as a group, the `openBracket` and `closeBracket` should contain the same data.
+When sending brackets as a group, the `openBracket` and `closeBracket`
+should contain the same data.
 
-<div class="note">
 Control ports are not wrapped with brackets, they only deal with data.
-</div>
 
 A more advanced example using sub-streams (should be avoided if possible because they add unnecessary complexity):
 
-sending the stream:
 ```md
 1) openBracket, '$outtermost'
 
@@ -371,7 +375,7 @@ sending the stream:
 9) openBracket, '$outtermost'
 ```
 
-using the component:
+and using the following component to handle the stream:
 
 ```coffeescript
 exports.getComponent = ->
@@ -392,7 +396,7 @@ exports.getComponent = ->
       output.done()
 ```
 
-output stream would be:
+the output stream would be:
 
 ```md
 1) openBracket, '$outtermost'
@@ -412,7 +416,8 @@ output stream would be:
 @TODO:
 What's happening here is forwardBrackets is
 
-An example of bracket forwarding can be found in [Loading Components inline](/documentation/testing/#loading-components-inline)
+An example of bracket forwarding can be found in
+[Loading Components inline](/documentation/testing/#loading-components-inline).
 
 -----------------------------------------------------
 
