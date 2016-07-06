@@ -198,29 +198,25 @@ Concurrency problems can arise in graphs. The following is an example of such a 
 ```md
 1) a packet (named $1) is sent to start
 2) start sends $1 packet to `eh`
-3) start sends $1 packet to `repeat`
-4) start sends $1 packet to `canada`
+3) start sends $1 packet to `canada`
 ```
 
-This is where it gets tricky. Sometimes, `canada` might take longer than `eh` and `repeat`
-Sometimes, `eh` might take longer than `canada` and `repeat`. `canada` might use the `database` from previous requests.
+This is where it gets tricky. Sometimes, `canada` might take longer than `eh`
+Sometimes, `eh` might take longer than `canada`. `canada` might use the `database` from previous requests.
 So for this run, it might then continue by doing:
 
 ```md
-5) `repeat` sends a packet to `merge`
-6) `eh` sends a packet to `merge`
+4) `eh` sends a packet $1 to `merge`
 
-7) a new packet (named $2) is sent to start
-8) start sends $2 packet to `eh`
-9) start sends $2 packet to `repeat`
-10) start sends $2 packet to `canada`
+5) a new packet (named $2) is sent to start
+6) start sends $2 packet to `eh`
+7) start sends $2 packet to `canada`
 
-11) `canada` sends $2 packet to `merge`
-12) now `merge` sends out data, but it has $1 from `eh` and `repeat`, but $2 from `canada`!
+8) `canada` sends $2 packet to `merge`
+9) now `merge` sends out data, but it has $1 from `eh` but $2 from `canada`!
 
-13) `eh` sends $2 to `merge`
-14) `repeat` sends $2 to `merge`
-15) now, `merge` sends out data, but it has $2 from `eh` and `repeat`, but $1 from `canada`!
+10) `eh` sends $2 to `merge`
+11) now, `merge` sends out data, but it has $2 from `eh`, but $1 from `canada`!
 ```
 
 When scopes are used, even if the same order of operations happens, it will use the data from the correct request.

@@ -6,7 +6,7 @@ categories:
 weight: 6
 ---
 
-The main idea behind process api is having all [port events](/documentation/information-packets/#type) come into one place, and all of the [output](#sending)s sent out from the same place.
+The main idea behind process api is having all [port events](/documentation/information-packets/#type) come into one place, and all of the [output](#sending) sent out from the same place.
 
 First of all let's see what a component defined using Process API looks like:
 
@@ -34,7 +34,7 @@ Process API and gives its name. The `input` is a reference to all
 incoming IPs to the component and `output` is a reference to all
 outgoing IPs from the component.
 
-The way the process api works is the async process function gets called for each event. If `done` does not get called, the process function will getting called, and the IPs that are passed to it keep getting appended to the buffer.
+The way the process api works is the async process function gets called for each IP. If `done` does not get called, the process function will getting called, and the IPs that are passed to it keep getting appended to the buffer.
 
 <div class="note">
 The <code>component.process</code> returns an instance of component, so you don't have to
