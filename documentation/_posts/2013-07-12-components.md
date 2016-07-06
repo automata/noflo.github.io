@@ -13,7 +13,7 @@ weight: 3
 
 [picture](ingredient)
 
-A component is the main ingredient of flow-based programming. Component is a [CommonJS module])(http://requirejs.org/docs/commonjs.html) providing a set of input and output port handlers. These ports are used for connecting components to each other.
+A component is the main ingredient of flow-based programming. Component is a [CommonJS module](http://requirejs.org/docs/commonjs.html) providing a set of input and output port handlers. These ports are used for connecting components to each other.
 
 [picture](box)
 
@@ -119,13 +119,6 @@ exports.getComponent = ->
   component.description = 'Take a photo with the computer\'s web camera'
   component.icon = 'camera'
 ```
-```javascript
-// File: components/TakePicture.js
-exports.getComponent = function() {
-  var component = new noflo.Component();
-  component.description = 'Take a photo with the computer\'s web camera';
-  component.icon = 'camera';
-```
 
 Icons can also be updated during runtime to reflect a changing state of the component. This is accomplished by calling the `setIcon` method of the component. For example, the *TakePicture* component above could temporarily set its icon when a picture has been taken to a [Picture icon](http://fontawesome.io/icon/picture-o/) and then change it back a bit later:
 
@@ -137,11 +130,4 @@ component.timeout = setTimeout =>
   component.timeout = null
 , 200
 ```
-```javascript
-component.originalIcon = component.getIcon();
-component.setIcon('picture-o');
-component.timeout = setTimeout(function() {
-  component.setIcon(component.originalIcon);
-  component.timeout = null;
-}, 200);
-```
+
