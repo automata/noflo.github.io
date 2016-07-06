@@ -46,8 +46,11 @@ return it on your component definition.
 - [Component States](#component-states)
   - [Preconditions](#preconditions)
   - [Processing](#processing)
-    - [Getting](#getting)
-    - [Sending](#sending)
+    - [Receiving](#Receiving)
+      - [Getting](#getting)
+        - [Input](#input)
+      - [Sending](#sending)
+        - [Output](#output)
   - [Done](#done)
   - [Stream Helpers](#stream-helpers)
     - [hasStream](#has-stream)
@@ -70,17 +73,22 @@ return it on your component definition.
 
 # <a id="component-states"></a> Component States
 
-1) Components _start_
-2) Components process _preconditions_ are checked
-3) Once Components preconditions are passed, they begin _processing_.
-4) Finally, once Components finish processing and call `output.done`, they are _done_.
+- 1) Components _start_
+- 2) Components process _preconditions_ are checked
+- 3) Once Components preconditions are passed, they begin _processing_.
+- 4) Finally, once Components finish processing and call `output.done`, they are _done_.
 
 ----------------------------------------
 
-## <a id="preconditions"></a> Preconditions
+## <a id="preconditions"></a> 2) Preconditions
 
 Given that `input` represents all the input received by a component, it is
-common to check for some preconditions before _firing_ a component.
+common to check for some preconditions before _processing_.
+
+Preconditions are usually at the beginning of the `process` function.
+They check to make sure the inports have the required packets,
+if they match certain criteria, or anything else that is required for the component to begin
+[processing](#processing).
 
 A common operation is to check if `input` has a packet arriving at some port:
 
@@ -107,17 +115,25 @@ hasHoldData = input.has 'hold', (ip) -> ip.type is 'data'
 
 ----------------------------------------
 
-## <a name="processing"></a>Processing
+## <a name="processing"></a> 3) Processing
 
 Once a component has passed the preconditions, it begins processing. Processing is where you get the data, possibly perform operations on data, and can send IPs out before calling `output.done`.
 
-## <a name="getting"></a>Receiving
+## <a name="getting"></a> Receiving
+
+### <a id="input"></a> Input
+
+Consider `input` as the representation of all data _received_ by the component.
+
+----------------
 
 ### Get <a name="get"></a>
+
 When someone wants to receive data in a component, `input.get` will get the first
 IP from the [buffer](#buffer) of that port.
 
 For example, if the incoming packet flow on an `in` inPort is:
+
 ```md
 1) openBracket
 2) data
@@ -129,7 +145,7 @@ If `input.get 'in'` is called, first it will receive the `openBracket`
 If called again, it will receive `data`, and then again after that, would
 receive `closeBracket`.
 
-Since `input.get` removes an IP from the buffer each time, you can repeatedly
+Since `input.get` removes an IP from the buffer each time it is called, you can repeatedly
 call it until you have what you need. For example, if you want to collect all
 `data` IPs:
 
@@ -140,13 +156,14 @@ until data.type is 'data'
 ```
 
 ### GetData <a name="get-data"></a>
+
 The `input.getData portname` is a shortcut for `input.get(portname).data`.
 
 If the port name is not passed in as an argument, it will try to retrieve from
 the `in` inport. Meaning, `input.getData()` is the same as `input.getData 'in'`.
 
 <div class="note">
-when you <code>input.get|getData</code> from a <code>control</code> port, it does not reset the <code>control</code> ports buffer because the data is meant to persist until new data is sent to that <code>control</code> port. <code>control</code> ports also only accept <code>data</code> ips. If it is sent bracket <code>IP</code>s, they will be dropped silently.
+Calling <code>input.get|getData</code> on a <code>control</code> port, it does not reset the <code>control</code> ports <a href="#buffer">buffer</a> because the data is meant to persist until new data is sent to that <code>control</code> port. <code>control</code> ports also only accept <code>data</code> <code>IP</code>s. If it is sent bracket <code>IP</code>s, they will be dropped silently.
 </div>
 
 As said, `input.getData` will accept port name(s) as the parameter.
@@ -168,7 +185,14 @@ using <code>input.get</code> and <code>input.getData</code> will remove the item
 
 ## <a name="sending"></a>Sending
 
-Considere `output` as the representation of all data sent by the component.
+An output map is an object whos keys are the ports it is sending to, and the values are the data to send to those ports.
+
+### <a id="output"></a> Output
+
+Consider `output` as the representation of all data _sent_ by the component.
+
+----------------
+
 If you're taking something and `send`ing multiple [IPs](/information-packets),
 you should make them a `Stream`, meaning it should be wrapped with an
 `openBracket` and an `closeBracket`:
@@ -272,7 +296,7 @@ To see more usage of sending, including using streams,
 check out [writing your own projects guide component, FindEhs](/projects/find-ehs).
 
 ----------------------------------------
-## <a name="done">Done</a>
+## 4) <a name="done"></a> Done
 
 When you are done processing your data, call `output.done()`
 (or `output.sendDone` if it makes sense for how you're using it.)
@@ -287,7 +311,7 @@ throw an <code>Error</code>.
 
 <pre><code>output.sendDone new Error('we have a problem')</code></pre>
 
-In the future, it may emit a proccesserror.
+In the future, it may emit a `ProccessError`.
 </div>
 
 ----------------------------------------
@@ -313,7 +337,7 @@ and you are using the `bracketForwarding: true` option, you can get the
 `data`, process it and send [IPs](/information-packets) out. What you
 send out will be wrapped in the `openBracket` and `closeBracket`.
 
-For example, given some [IPs](/information-packets) coming into an `in` port:
+For example, given some [IPs](/information-packets) coming into an inport:
 
 ```md
 1) openBracket ('name')
@@ -464,13 +488,17 @@ The data stream helpers are mainly used for ports that receive
 
 ## hasDataStream <a id="has-data-stream"></a>
 
-hasDataStream checks similarily to [hasStream](#has-stream), however, when using `data: true` on the port and allowing [bracketForwarding](#bracket-forwarding) to do things behind the scenes, it has a different way of checking.
-
-[hasStream](#has-stream) checks if every openBracket has a closeBracket. But when forwardBrackets is enabled for a port, IPs that are not data are removed from the buffer, so there has to be a separate value to track the IPs that come in that are not data. Additionally, when using forwardBrackets, process function is triggered _before_ the last `closeBracket`, so using `data: true` changes it to be triggered _after_.
+Data streams are used by setting `data: true` attribute on an inport and allowing [bracketForwarding](#bracket-forwarding) to forward brackets behind the scenes so that the process function only has to deal with the `data`.
 
 <div class="note">
 <code>hasDataStream</code> will only work if the port <code>data</code> property is <code>true</code>.
 </div>
+
+[hasStream](#has-stream) checks if every openBracket has a closeBracket.
+
+However, when forwardBrackets is enabled for a port, IPs that are not `data` are removed from the buffer, so there has to be a separate value to track the IPs that come in that are not data. This is why [hasStream](#has-stream) does not work on a port using bracketForwarding.
+
+When using forwardBrackets the process function is triggered _before_ the last `closeBracket`, so using `data: true` changes it to be triggered _after_.
 
 ## getDataStream <a id="get-data-stream"></a>
 
@@ -686,7 +714,7 @@ What `autoOrdering` does is automatically turns `ordered` on when it sees a stre
 If you need to do something advanced and the [Get](#Get) and [Stream](#Stream) helpers cannot do what you need, you can read information right from the buffer. To do that easily, there are `input.buffer` helpers.
 
 <div class="note">
-When you manually read from the buffer, it is not reset automatically, so you have to manually change the buffer when you are <a href="done">finished processing and are done</a>.
+When you manually read from the buffer using the buffer helpers, it is not reset automatically, so you have to manually change the buffer when you are <a href="done">finished processing and are done</a>.
 </div>
 
 To get the current buffer:
