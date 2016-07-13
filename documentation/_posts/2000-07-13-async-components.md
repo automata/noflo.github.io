@@ -8,13 +8,14 @@ Asynchronous components process data and send output some time later. The output
 
 Previously, we used a dedicated class named `AsyncComponent` which would be extended.
 
-Now,
+Now, (process api)[Process API] is asynchronous by default.
 
-(process api)[process api] is asynchronous by default.
-
-WirePattern can be used for async by setting the `async` property.
+`WirePattern` can be used for asynchronous processing by setting the `async` property.
 
 -----------
+
+<!-- This part seems duplication of the above, are we going to ditch this off
+and only point people to Process API or WirePattern? -->
 
 Asynchronous components process data and send output some time later. The outputs are sent in the order that they are processed, which might be a different than the order received. To keep track of the in/out data correspondence, outputs are sent with a group marked with the input data.
 

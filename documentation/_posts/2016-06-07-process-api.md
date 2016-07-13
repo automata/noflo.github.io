@@ -6,7 +6,7 @@ categories:
 weight: 6
 ---
 
-The main idea behind process api is having all [port events](/documentation/information-packets/#type) come into one place, and all of the [output](#sending) sent out from the same place.
+The main idea behind Process API is having all [port events](/documentation/information-packets/#type) come into one place, and all of the [output](#sending) sent out from the same place.
 
 First of all let's see what a component defined using Process API looks like:
 
@@ -73,14 +73,20 @@ return it on your component definition.
 
 # <a id="component-states"></a> Component States
 
-- 1) Components _start_
-- 2) Components process _preconditions_ are checked
-- 3) Once Components preconditions are passed, they begin _processing_.
-- 4) Finally, once Components finish processing and call `output.done`, they are _done_.
+It is a good practice to keep component states only after a component start and
+to clean up all state right after if finishes. With Process API that happens
+following these steps:
+
+1. Components _start_
+2. Components process _preconditions_ are checked
+3. Once components preconditions are passed, they begin _processing_.
+4. Finally, once components finish processing and call `output.done`, they are _done_.
+
+Each step is broadly discussed in the next sections.
 
 ----------------------------------------
 
-## <a id="preconditions"></a> 2) Preconditions
+## <a id="preconditions"></a> Preconditions
 
 Given that `input` represents all the input received by a component, it is
 common to check for some preconditions before _processing_.
@@ -115,9 +121,11 @@ hasHoldData = input.has 'hold', (ip) -> ip.type is 'data'
 
 ----------------------------------------
 
-## <a name="processing"></a> 3) Processing
+## <a name="processing"></a> Processing
 
-Once a component has passed the preconditions, it begins processing. Processing is where you get the data, possibly perform operations on data, and can send IPs out before calling `output.done`.
+Once a component has passed the preconditions, it begins processing. Processing is
+where you get the data, possibly perform operations on data, and can send IPs out
+before calling `output.done`.
 
 ## <a name="getting"></a> Receiving
 
@@ -132,7 +140,7 @@ Consider `input` as the representation of all data _received_ by the component.
 When someone wants to receive data in a component, `input.get` will get the first
 IP from the [buffer](#buffer) of that port.
 
-For example, if the incoming packet flow on an `in` inPort is:
+For example, if the incoming packet flow on an `in` inport is:
 
 ```md
 1) openBracket
@@ -163,7 +171,12 @@ If the port name is not passed in as an argument, it will try to retrieve from
 the `in` inport. Meaning, `input.getData()` is the same as `input.getData 'in'`.
 
 <div class="note">
-Calling <code>input.get|getData</code> on a <code>control</code> port, it does not reset the <code>control</code> ports <a href="#buffer">buffer</a> because the data is meant to persist until new data is sent to that <code>control</code> port. <code>control</code> ports also only accept <code>data</code> <code>IP</code>s. If it is sent bracket <code>IP</code>s, they will be dropped silently.
+Calling <code>input.get|getData</code> on a <code>control</code> port, it
+does not reset the <code>control</code> ports <a href="#buffer">buffer</a>
+because the data is meant to persist until new data is sent to that
+<code>control</code> port. The <code>control</code> ports also only accept
+<code>data</code> <code>IP</code>s. If it is sent bracket <code>IP</code>s,
+they will be dropped silently.
 </div>
 
 As said, `input.getData` will accept port name(s) as the parameter.
@@ -173,19 +186,22 @@ Passing in one port will give the data:
 data = input.getData portname
 ```
 
-Passing in multiple port names will give an array of the data (using [destructuring](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)):
+Passing in multiple port names will give an array of the data
+(using [destructuring](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)):
 
 ```coffeescript
 [canada, eh] = input.getData 'canada', 'eh'
 ```
 
 <div class="note">
-using <code>input.get</code> and <code>input.getData</code> will remove the item retrieved using it from the buffer.
+Using <code>input.get</code> and <code>input.getData</code> will
+remove the item retrieved using it from the buffer.
 </div>
 
 ## <a name="sending"></a>Sending
 
-An output map is an object whos keys are the ports it is sending to, and the values are the data to send to those ports.
+An output map is an object whos keys are the ports it is sending to, and
+the values are the data to send to those ports.
 
 ### <a id="output"></a> Output
 
@@ -193,7 +209,7 @@ Consider `output` as the representation of all data _sent_ by the component.
 
 ----------------
 
-If you're taking something and `send`ing multiple [IPs](/information-packets),
+If you're taking something and sending multiple [IPs](/information-packets),
 you should make them a `Stream`, meaning it should be wrapped with an
 `openBracket` and an `closeBracket`:
 
@@ -230,13 +246,13 @@ output.sendDone
   second: 'bar'
 ```
 
-The following is an example of a component that sends to multiplor ports at a
+The following is an example of a component that sends to multiple ports at a
 time or error if there is an error:
 
 ```coffeescript
 exports.getComponent = ->
   c = new noflo.Component
-    description: 'Take in data on 1 inport, repeat that data out a port
+    description: 'Take in data on one inport, repeat that data out a port
       and send other data out of another'
     inPorts:
       eh:
@@ -258,8 +274,8 @@ exports.getComponent = ->
     eh = input.getData 'eh'
 
     unless eh?
-      # will send to `error` outport
-      output.sendDone new Error('inPort `eh` did not have any real data!')
+      # Will send to `error` outport
+      output.sendDone new Error('The inport `eh` did not have any real data!')
       return
 
     output.sendDone
@@ -296,7 +312,7 @@ To see more usage of sending, including using streams,
 check out [writing your own projects guide component, FindEhs](/projects/find-ehs).
 
 ----------------------------------------
-## 4) <a name="done"></a> Done
+## <a name="done"></a> Done
 
 When you are done processing your data, call `output.done()`
 (or `output.sendDone` if it makes sense for how you're using it.)
@@ -488,17 +504,24 @@ The data stream helpers are mainly used for ports that receive
 
 ## hasDataStream <a id="has-data-stream"></a>
 
-Data streams are used by setting `data: true` attribute on an inport and allowing [bracketForwarding](#bracket-forwarding) to forward brackets behind the scenes so that the process function only has to deal with the `data`.
+Data streams are used by setting `data: true` attribute on an inport and
+allowing [bracketForwarding](#bracket-forwarding) to forward brackets
+behind the scenes so that the process function only has to deal with the `data`.
 
 <div class="note">
-<code>hasDataStream</code> will only work if the port <code>data</code> property is <code>true</code>.
+<code>hasDataStream</code> will only work if the port <code>data</code>
+property is <code>true</code>.
 </div>
 
-[hasStream](#has-stream) checks if every openBracket has a closeBracket.
+[hasStream](#has-stream) checks if every `openBracket` has a `closeBracket`.
 
-However, when forwardBrackets is enabled for a port, IPs that are not `data` are removed from the buffer, so there has to be a separate value to track the IPs that come in that are not data. This is why [hasStream](#has-stream) does not work on a port using bracketForwarding.
+However, when `forwardBrackets` is enabled for a port, IPs that are not
+`data` are removed from the buffer, so there has to be a separate value
+to track the IPs that come in that are not data. This is why
+[hasStream](#has-stream) does not work on a port using `bracketForwarding`.
 
-When using forwardBrackets the process function is triggered _before_ the last `closeBracket`, so using `data: true` changes it to be triggered _after_.
+When using `forwardBrackets` the process function is triggered _before_
+the last `closeBracket`, so using `data: true` changes it to be triggered _after_.
 
 ## getDataStream <a id="get-data-stream"></a>
 
@@ -685,7 +708,7 @@ exports.getComponent = ->
 
 ## Ordered <a id="ordered"></a>
 The `ordered` component option that makes the component maintain the
-order between `input` and `output` regardless of streams. (_default is `false`_)
+order between `input` and `output` regardless of streams. (_Default is `false`_)
 
 <div class="note">
 By default, component outport is ordered when using <a href="#sending">output.send</a>.
@@ -697,7 +720,7 @@ in the same order it gets queries, regardless of what time they take.
 The option `ordered` will not work unless `autoOrdering` is disabled.
 
 ## AutoOrdering <a id="auto-ordering"></a>
-The `autoOrdering` component option groups the output sending. (_default is `true`_)
+The `autoOrdering` component option groups the output sending. (_Default is `true`_)
 
 `autoOrdering` temporarily enables `ordered` for components still having `ordered: false` to make them stream-safe.
 
@@ -705,16 +728,17 @@ If order is important, it can be disabled by setting `component.autoOrdering = f
 
 What `autoOrdering` does is automatically turns `ordered` on when it sees a stream coming, so it makes sure (or at least tries to) that the output stream is the result of processing exactly the same sequence as the input stream.
 
-
-
-
 ----------------------------------------
 # Buffer <a id="buffer"></a>
 
-If you need to do something advanced and the [Get](#Get) and [Stream](#Stream) helpers cannot do what you need, you can read information right from the buffer. To do that easily, there are `input.buffer` helpers.
+If you need to do something advanced and the [Get](#Get) and [Stream](#Stream)
+helpers cannot do what you need, you can read information right from the
+buffer. To do that easily, there are `input.buffer` helpers.
 
 <div class="note">
-When you manually read from the buffer using the buffer helpers, it is not reset automatically, so you have to manually change the buffer when you are <a href="done">finished processing and are done</a>.
+When you manually read from the buffer using the buffer helpers, it is not reset
+automatically, so you have to manually change the buffer when you are
+<a href="done">finished processing and are done</a>.
 </div>
 
 To get the current buffer:
@@ -748,7 +772,7 @@ To completely reset the buffer:
 input.buffer.set portname, []
 ```
 
-or based on your conditions (in this case, keeping only ips with data type):
+Or based on your conditions (in this case, keeping only ips with data type):
 
 ```coffeescript
 input.buffer.filter portname, (ip) -> ip.type is 'data'

@@ -17,7 +17,7 @@ A component is the main ingredient of flow-based programming. Component is a [Co
 
 [picture](box)
 
-NoFlo processes (the boxes of a flow graph) are instances of a component, with the graph controlling connections between ports of components.
+NoFlo processes (the nodes of a flow graph) are instances of a component, with the graph controlling connections between ports of components.
 
 Since version 0.2.0, NoFlo has been able to utilize components shared via NPM packages. [Read the introductory blog post](http://bergie.iki.fi/blog/distributing-noflo-components/) to learn more.
 
@@ -28,8 +28,8 @@ Functionality a component provides:
 
 * List of inports (named inbound ports)
 * List of outports (named outbound ports)
-* Handler for component initialization that accepts configuration (the `exports.getComponent = ->` that a componentLoader or graph will pass metadata to)
-* Handler for connections for each inport (proccess api)
+* Handler for component initialization that accepts configuration (the `exports.getComponent = ->` that a `componentLoader` or graph will pass metadata to)
+* Handler for connections for each inport (Proccess API)
 
 Minimal component written in NoFlo would look like the following:
 
@@ -74,6 +74,9 @@ You can find more examples of components in the [component library](/library/) s
 
 Components should aim to be reusable, to do one thing and do it well. This is why often it is a good idea to split functionality traditionally done in one function to multiple components. For example, counting lines in a text file could happen in the following way:
 
+<!-- It would be interesting to have an image here with the graph described
+below -->
+
 * Filename is sent to a _Read File_ component
 * _Read File_ reads it and sends the contents onwards to _Split String_ component
 * _Split String_ splits the contents by newlines, and sends each line separately to a _Count_ component
@@ -99,11 +102,9 @@ When NoFlo is being run, all components used in a NoFlo network (an instantiated
 
 * _Instantiation_: component is instantiated for a node in the NoFlo graph, and its `constructor` method is called. At this stage a component should prepare its internal data structures and register listeners for the [events of its input ports](#portevents)
 * _Running_: component has received events on its input ports. Now the component can interact with those events and the external world, and optionally start transmitting [port events](#portevents) on its output ports
-* _Shutdown_: Normally a NoFlo network finishes when all components stop transmitting port events. It is however also possible to close a running NoFlo network. In this case the `shutdown` method of components gets called, allowing components to perform whatever cleanup needed, like unregistering event listeners on external objects, or closing network connections.
+* _Shutdown_: normally a NoFlo network finishes when all components stop transmitting port events. It is however also possible to close a running NoFlo network. In this case the `shutdown` method of components gets called, allowing components to perform whatever cleanup needed, like unregistering event listeners on external objects, or closing network connections.
 
-A running instance of a component in a NoFlo network is called a *process*. Before a process has received data it should be *inert*, merely listening to its input ports. Processes that need to start doing something when a network is started should be triggered to do so by sending them an Initial Information Packet.
-
-
+A running instance of a component in a NoFlo network is called a *process*. Before a process has received data it should be *inert*, merely listening to its input ports. Processes that need to start doing something when a network is started should be triggered to do so by sending them an Initial Information Packet (IIP).
 
 <a id="icons"></a>
 ### Component icons
