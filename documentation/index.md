@@ -6,7 +6,7 @@ categories:
 ---
 NoFlo is a [Flow-Based Programming](http://en.wikipedia.org/wiki/Flow-based_programming) environment for JavaScript. In flow-based programs, the logic of your software is defined as a *graph*. The *nodes* of the graph are instances of NoFlo components, and the *edges* define the connections between them.
 
-NoFlo components react to incoming messages, or *packets*. When a component receives packets in its input ports it performs a predefined operation, and sends its result out as a packet to its output ports. There is no shared state, and the only way to communicate between components is by sending packets.
+NoFlo components react to incoming messages, or *Information Packets (IP)*. When a component receives packets in its input ports it performs a predefined operation, and sends its result out as a packet to its output ports. There is no shared state, and the only way to communicate between components is by sending packets.
 
 NoFlo components are built as simple JavaScript or [CoffeeScript](http://coffeescript.org/) classes that define the input and output ports, and register various event listeners on them. When executed, NoFlo creates a live graph, or *network* out of a graph, instantiates the components used in the graph, and connects them together.
 
@@ -34,10 +34,10 @@ Since most components require some input before they act, the usual way to make 
 
 This activation model provides many possibilities:
 
-* Starting a flow based on user interaction (shell command, clicking a button)
-* Starting a flow based on a received signal (Redis pub/sub, D-Bus signal, WebHook, email)
-* Starting a flow at a given time or interval (running a graph on the first of every month, or five minutes from now)
-* Starting a flow based on context (when arriving to a physical location, when user goes to a given web site)
+* Starting a flow based on user interaction (e.g. shell command, clicking a button)
+* Starting a flow based on a received signal (e.g. Redis pub/sub, D-Bus signal, WebHook, email)
+* Starting a flow at a given time or interval (e.g. running a graph on the first of every month, or five minutes from now)
+* Starting a flow based on context (e.g. when arriving to a physical location, when user goes to a given web site)
 
 ## Creating a NoFlo project
 
